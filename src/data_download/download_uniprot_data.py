@@ -114,6 +114,8 @@ af2_file_names = raw_destress_data_af2["design_name"].str.split("-").str[1]
 af2_uniprot_id_list = af2_file_names.to_list()
 
 # Downloading Uniprot data
-results_df = download_uniprot_data(uniprot_id_list=af2_uniprot_id_list)
+results_df = download_uniprot_data(
+    uniprot_id_list=af2_uniprot_id_list, output_path=output_path
+)
 
 print(results_df)
