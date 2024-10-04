@@ -82,13 +82,18 @@ def get_uniprot_entry(uniprot_id: str) -> UniprotResults:
             go_codes_str,
             subceullar_locations_str,
         )
-    else:
-        raise Exception(f"No entry found for uniprot ID: {uniprot_id}")
+    # else:
+    #     raise Exception(f"No entry found for uniprot ID: {uniprot_id}")
 
 
 def get_uniprot_dict(uniprot_id: str) -> dict:
-    results = get_uniprot_entry(uniprot_id)
-    return {uniprot_id: results.__dict__}
+
+    try:
+        results = get_uniprot_entry(uniprot_id)
+        return {uniprot_id: results.__dict__}
+
+    except Exception:
+        pass
 
 
 def download_uniprot_data(
