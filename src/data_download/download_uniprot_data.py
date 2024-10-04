@@ -62,10 +62,11 @@ def get_uniprot_entry(uniprot_id: str) -> UniprotResults:
             comments = results[0]["comments"]
             for comment in comments:
                 if comment["commentType"] == "SUBCELLULAR LOCATION":
-                    for subcellular_location in comment["subcellularLocations"]:
-                        subcellular_locations.append(
-                            subcellular_location["location"]["value"]
-                        )
+                    if "subcellularLocations" in comment:
+                        for subcellular_location in comment["subcellularLocations"]:
+                            subcellular_locations.append(
+                                subcellular_location["location"]["value"]
+                            )
 
             subceullar_locations_str = ":".join(subcellular_locations)
 
