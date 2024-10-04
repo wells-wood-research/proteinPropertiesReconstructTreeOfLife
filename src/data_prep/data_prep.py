@@ -26,3 +26,180 @@ raw_destress_data_pdb_path = raw_data_path + "destress_data_pdb_082024.csv"
 
 # Defining the file path for the plddt scores
 af2_plddt_scores_path = raw_data_path + "af2_plddt_scores.csv"
+
+# Defining a list of DE-STRESS metrics which are energy field metrics
+energy_field_list = [
+    "hydrophobic_fitness",
+    "budeff_total",
+    "budeff_steric",
+    "budeff_desolvation",
+    "budeff_charge",
+    "evoef2_total",
+    "evoef2_ref_total",
+    "evoef2_intraR_total",
+    "evoef2_interS_total",
+    "evoef2_interD_total",
+    "rosetta_total",
+    "rosetta_fa_atr",
+    "rosetta_fa_rep",
+    "rosetta_fa_intra_rep",
+    "rosetta_fa_elec",
+    "rosetta_fa_sol",
+    "rosetta_lk_ball_wtd",
+    "rosetta_fa_intra_sol_xover4",
+    "rosetta_hbond_lr_bb",
+    "rosetta_hbond_sr_bb",
+    "rosetta_hbond_bb_sc",
+    "rosetta_hbond_sc",
+    "rosetta_dslf_fa13",
+    "rosetta_rama_prepro",
+    "rosetta_p_aa_pp",
+    "rosetta_fa_dun",
+    "rosetta_omega",
+    "rosetta_pro_close",
+    "rosetta_yhh_planarity",
+]
+
+# Defining cols to drop
+drop_cols = [
+    "ss_prop_alpha_helix",
+    "ss_prop_beta_bridge",
+    "ss_prop_beta_strand",
+    "ss_prop_3_10_helix",
+    "ss_prop_pi_helix",
+    "ss_prop_hbonded_turn",
+    "ss_prop_bend",
+    "ss_prop_loop",
+    "charge",
+    "mass",
+    "num_residues",
+    "uniprot_join_id",
+    "aggrescan3d_total_value",
+    "rosetta_pro_close",
+    "rosetta_omega",
+    "rosetta_total",
+    "rosetta_fa_rep",
+    "evoef2_total",
+    "evoef2_interS_total",
+    "rosetta_rama_prepro",
+    "rosetta_p_aa_pp",
+    "evoef2_ref_total",
+    # "Mean_PLDDT",
+]
+
+# Defining the organism groups
+organism_animal_list = [
+    "Caenorhabditis elegans",
+    "Danio rerio",
+    "Drosophila melanogaster",
+    "Mus musculus",
+    "Rattus norvegicus",
+    "Homo sapiens",
+    "Brugia malayi",
+    "Dracunculus medinensis",
+    "Onchocerca volvulus",
+    "Schistosoma mansoni",
+    "Strongyloides stercoralis",
+    "Trichuris trichiura",
+    "Wuchereria bancrofti",
+]
+
+organism_fungi_list = [
+    "Candida albicans",
+    "Saccharomyces cerevisiae",
+    "Cladophialophora carrionii",
+    "Fonsecaea pedrosoi",
+    "Madurella mycetomatis",
+    "Sporothrix schenckii",
+    "Ajellomyces capsulatus",
+    "Schizosaccharomyces pombe",
+    "Paracoccidioides lutzii",
+]
+organism_bacteria_list = [
+    "Escherichia coli",
+    "Helicobacter pylori",
+    "Campylobacter jejuni",
+    "Enterococcus faecium",
+    "Klebsiella pneumoniae",
+    "Mycobacterium leprae",
+    "Mycobacterium tuberculosis",
+    "Mycobacterium ulcerans",
+    "Neisseria gonorrhoeae",
+    "Nocardia brasiliensis",
+    "Pseudomonas aeruginosa",
+    "Salmonella typhimurium",
+    "Shigella dysenteriae",
+    "Staphylococcus aureus",
+    "Streptococcus pneumoniae",
+    "Haemophilus influenzae",
+]
+organism_plant_list = [
+    "Arabidopsis thaliana",
+    "Glycine max",
+    "Oryza sativa",
+    "Zea mays",
+]
+organism_protozoan_list = [
+    "Plasmodium falciparum",
+    "Dictyostelium discoideum",
+    "Leishmania infantum",
+    "Trypanosoma brucei",
+    "Trypanosoma cruzi",
+]
+
+organism_archaea_list = ["Methanocaldococcus jannaschii"]
+
+organism_other_list = [
+    "Other",
+    "Unknown",
+]
+
+# Defining the labels that we are interested in
+labels = [
+    "design_name",
+    "full_sequence",
+    "dssp_bin",
+    "pdb_or_af2",
+    "charge",
+    "isoelectric_point",
+    "isoelectric_point_bin",
+    "rosetta_total",
+    "packing_density",
+    "packing_density_bin",
+    "hydrophobic_fitness",
+    "aggrescan3d_avg_value",
+    "aggrescan3d_avg_bin",
+    "organism_scientific_name",
+    "organism_group",
+    "organism_group2",
+    "designed_native",
+    # "Mean_PLDDT",
+]
+
+# Defining a threshold for the spearman correlation coeffient
+# in order to remove highly correlated variables
+corr_coeff_threshold = 0.6
+
+# Defining a threshold to remove features that have pretty much the same value
+constant_features_threshold = 0.25
+
+
+# 2. Reading in data sets-------------------------------------------------------------------------------
+
+# Reading in raw AF2 DE-STRESS data
+raw_destress_data_af2 = pd.read_csv(raw_destress_data_af2_path)
+
+# # Reading in the plddt scores for the af2 structural models
+# af2_plddt_scores = pd.read_csv(af2_plddt_scores_path)
+# af2_plddt_scores["design_name"] = (
+#     af2_plddt_scores["Filename"].str.replace(".pdb", "").astype(str)
+# )
+
+# # Joining this score onto the af2 structural model data set
+# raw_af2_destress_data = raw_af2_destress_data.merge(
+#     af2_plddt_scores[["design_name", "Mean_PLDDT"]], on="design_name", how="left"
+# )
+
+
+# Reading in raw PDB DE-STRESS data
+raw_destress_data_pdb = pd.read_csv(raw_destress_data_pdb_path)
