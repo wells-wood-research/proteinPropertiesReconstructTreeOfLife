@@ -93,8 +93,12 @@ def get_uniprot_entry(uniprot_id: str) -> UniprotResults:
 
 
 def get_uniprot_dict(uniprot_id: str) -> dict:
-    results = get_uniprot_entry(uniprot_id)
-    return {uniprot_id: results.__dict__}
+
+    try:
+        results = get_uniprot_entry(uniprot_id)
+        return {uniprot_id: results.__dict__}
+    except:
+        return {uniprot_id: {}}
 
 
 def download_uniprot_data(
