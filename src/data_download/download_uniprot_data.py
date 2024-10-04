@@ -10,6 +10,7 @@ class UniprotResults:
     uniprot_id: str
     host_organism: Optional[str]
     organism_class: Optional[str]
+    go_codes: Optional[str]
     subcellular_location: Optional[str]
 
 
@@ -47,14 +48,14 @@ def get_uniprot_entry(uniprot_id: str) -> UniprotResults:
             host_organism = ""
             organism_class = ""
 
-        # cross_references = results[0].get("uniProtKBCrossReferences", [])
+        cross_references = results[0].get("uniProtKBCrossReferences", [])
 
-        # go_codes = []
-        # for ref in cross_references:
-        #     if ref["database"] == "GO":
-        #         go_codes.append(ref["id"])
+        go_codes = []
+        for ref in cross_references:
+            if ref["database"] == "GO":
+                go_codes.append(ref["id"])
 
-        # print(go_codes)
+        go_codes_str = ":".join(go_codes)
 
         subcellular_locations = []
 
@@ -74,7 +75,11 @@ def get_uniprot_entry(uniprot_id: str) -> UniprotResults:
             subceullar_locations_str = ""
 
         return UniprotResults(
-            uniprot_id, host_organism, organism_class, subceullar_locations_str
+            uniprot_id,
+            host_organism,
+            organism_class,
+            go_codes_str,
+            subceullar_locations_str,
         )
     else:
         raise Exception(f"No entry found for uniprot ID: {uniprot_id}")
