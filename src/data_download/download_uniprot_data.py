@@ -75,6 +75,12 @@ def get_uniprot_entry(uniprot_id: str) -> UniprotResults:
         else:
             subceullar_locations_str = ""
 
+    else:
+        host_organism = ""
+        organism_class = ""
+        go_codes_str = ""
+        subceullar_locations_str = ""
+
         return UniprotResults(
             uniprot_id,
             host_organism,
@@ -87,13 +93,8 @@ def get_uniprot_entry(uniprot_id: str) -> UniprotResults:
 
 
 def get_uniprot_dict(uniprot_id: str) -> dict:
-
-    try:
-        results = get_uniprot_entry(uniprot_id)
-        return {uniprot_id: results.__dict__}
-
-    except Exception:
-        pass
+    results = get_uniprot_entry(uniprot_id)
+    return {uniprot_id: results.__dict__}
 
 
 def download_uniprot_data(
@@ -107,7 +108,9 @@ def download_uniprot_data(
 
     results_dict = {}
     for result in results_list:
-        results_dict.update(result)
+        if result is not None:
+
+            results_dict.update(result)
 
     # Convert results dictionary into a DataFrame
     results_df = pd.DataFrame.from_dict(results_dict, orient="index").reset_index(
