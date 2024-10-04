@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, Generic, Optional, Tuple, TypeVar, List
 import requests
 import pandas as pd
+import multiprocessing as mp
 
 
 @dataclass
@@ -85,16 +86,28 @@ def get_uniprot_entry(uniprot_id: str) -> UniprotResults:
         raise Exception(f"No entry found for uniprot ID: {uniprot_id}")
 
 
-def download_uniprot_data(uniprot_id_list: List[str], output_path: str):
+def get_uniprot_dict(uniprot_id: str) -> dict:
+    results = get_uniprot_entry(uniprot_id)
+    return {uniprot_id: results.__dict__}
+
+
+def download_uniprot_data(
+    uniprot_id_list: List[str], output_path: str, num_processes: int
+):
+
+    # Create a multiprocessing Pool
+    with mp.Pool(processes=num_processes) as pool:
+        # Use map to distribute the workload
+        results_list = pool.map(get_uniprot_dict, uniprot_id_list)
 
     results_dict = {}
+    for result in results_list:
+        results_dict.update(result)
 
-    for uniprot_id in uniprot_id_list:
-
-        results = get_uniprot_entry(uniprot_id=uniprot_id)
-        results_dict[uniprot_id] = results.__dict__
-
-    results_df = pd.DataFrame(results_dict).transpose().reset_index(drop=True)
+    # Convert results dictionary into a DataFrame
+    results_df = pd.DataFrame.from_dict(results_dict, orient="index").reset_index(
+        drop=True
+    )
     results_df.to_csv(output_path + "uniprot_results_org_subcellloc.csv", index=False)
 
     return results_df
@@ -121,7 +134,9 @@ af2_uniprot_id_list = af2_file_names.to_list()
 
 # Downloading Uniprot data
 results_df = download_uniprot_data(
-    uniprot_id_list=af2_uniprot_id_list, output_path=output_path
+    uniprot_id_list=af2_uniprot_id_list,
+    output_path=output_path,
+    num_processes=4,
 )
 
 print(results_df)
