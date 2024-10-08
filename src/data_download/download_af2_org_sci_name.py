@@ -30,17 +30,26 @@ def get_af2db_results(uniprot_id):
     base_url = "https://alphafold.ebi.ac.uk/api/prediction/"
     uniprot_id_url = base_url + uniprot_id
 
-    response = requests.get(uniprot_id_url)
-    response.raise_for_status()
+    try:
+        response = requests.get(uniprot_id_url)
+        response.raise_for_status()
 
-    uniprot_description = response.json()[0].get("uniprotDescription", [])
-    organism_scientific_name = response.json()[0].get("organismScientificName", [])
+        uniprot_description = response.json()[0].get("uniprotDescription", [])
+        organism_scientific_name = response.json()[0].get("organismScientificName", [])
 
-    results = AF2DBResults(
-        uniprot_id=uniprot_id,
-        organism_scientific_name=organism_scientific_name,
-        uniprot_description=uniprot_description,
-    )
+        results = AF2DBResults(
+            uniprot_id=uniprot_id,
+            organism_scientific_name=organism_scientific_name,
+            uniprot_description=uniprot_description,
+        )
+
+    except requests.exceptions.HTTPError:
+
+        results = AF2DBResults(
+            uniprot_id=uniprot_id,
+            organism_scientific_name="",
+            uniprot_description="",
+        )
 
     results_dict = results.__dict__
 
