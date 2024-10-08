@@ -1,6 +1,6 @@
 # 0. Importing packages and defining custom functions/classes
-from dataclasses import dataclass, field
-from typing import Any, Dict, Generic, Optional, Tuple, TypeVar, List
+from dataclasses import dataclass
+from typing import Any, Dict, Optional, List
 import requests
 import pandas as pd
 import multiprocessing as mp
@@ -102,7 +102,9 @@ def download_uniprot_data(
 
     # Convert results dictionary into a DataFrame
     results_df = pd.DataFrame(results_list)
-    results_df.to_csv(output_path + "uniprot_results_org_subcellloc.csv", index=False)
+    results_df.to_csv(
+        output_path + "uniprot_results_org_subcellloc_uniprotkb.csv", index=False
+    )
 
     return results_df
 
