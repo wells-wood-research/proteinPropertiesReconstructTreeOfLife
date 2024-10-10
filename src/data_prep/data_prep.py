@@ -4,8 +4,7 @@
 # 0. Importing packages and helper functions---------------------------------------------
 from data_prep_tools import *
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler, StandardScaler, RobustScaler
-import pickle
+
 
 # 1. Defining variables-------------------------------------------------------------------
 
@@ -16,13 +15,19 @@ dataset_list = ["af2", "pdb"]
 scaling_method_list = ["standard", "robust", "minmax"]
 
 # Defining the path for the raw data
-raw_data_path = "data/raw_data"
+raw_data_path = "data/raw_data/"
+
+# Defining the path for the processed data
+processed_data_path = "data/processed_data/"
 
 # Defining the file path for the AF2 raw destress data
 raw_destress_data_af2_path = raw_data_path + "destress_data_af2.csv"
 
 # Defining the file path for the PDB raw destress data
 raw_destress_data_pdb_path = raw_data_path + "destress_data_pdb_082024.csv"
+
+# Defining the file path for the af2db uniprot data
+af2db_uniprot_data_path = processed_data_path + "processed_af2db_uniprot_data.csv"
 
 # Defining the file path for the plddt scores
 af2_plddt_scores_path = raw_data_path + "af2_plddt_scores.csv"
@@ -73,7 +78,7 @@ drop_cols = [
     "charge",
     "mass",
     "num_residues",
-    "uniprot_join_id",
+    "uniprot_id",
     "aggrescan3d_total_value",
     "rosetta_pro_close",
     "rosetta_omega",
@@ -154,12 +159,22 @@ organism_other_list = [
     "Unknown",
 ]
 
+# Defining a dictionary with these organism group lists
+organism_group_dict = {
+    "animal": organism_animal_list,
+    "archaea": organism_archaea_list,
+    "bacteria": organism_bacteria_list,
+    "fungi": organism_fungi_list,
+    "plant": organism_plant_list,
+    "protozoan": organism_protozoan_list,
+    "other": organism_other_list,
+}
+
 # Defining the labels that we are interested in
 labels = [
     "design_name",
     "full_sequence",
     "dssp_bin",
-    "pdb_or_af2",
     "charge",
     "isoelectric_point",
     "isoelectric_point_bin",
@@ -172,7 +187,6 @@ labels = [
     "organism_scientific_name",
     "organism_group",
     "organism_group2",
-    "designed_native",
     # "Mean_PLDDT",
 ]
 
@@ -183,11 +197,23 @@ corr_coeff_threshold = 0.6
 # Defining a threshold to remove features that have pretty much the same value
 constant_features_threshold = 0.25
 
+# Defining a threshold for removing missing values for af2 data
+missing_val_threshold_af2 = 0.05
+
+# Defining a path for the data exploration for af2
+data_exploration_af2_path = "analysis/data_exploration/af2/"
+
+# Defining a path for the data output path for af2
+processed_data_af2_path = "data/processed_data/af2/"
+
 
 # 2. Reading in data sets-------------------------------------------------------------------------------
 
 # Reading in raw AF2 DE-STRESS data
 raw_destress_data_af2 = pd.read_csv(raw_destress_data_af2_path)
+
+# Reading in af2db uniprot data
+af2db_uniprot_data = pd.read_csv(af2db_uniprot_data_path)
 
 # # Reading in the plddt scores for the af2 structural models
 # af2_plddt_scores = pd.read_csv(af2_plddt_scores_path)
@@ -203,3 +229,23 @@ raw_destress_data_af2 = pd.read_csv(raw_destress_data_af2_path)
 
 # Reading in raw PDB DE-STRESS data
 raw_destress_data_pdb = pd.read_csv(raw_destress_data_pdb_path)
+
+# 3. Processing data sets-------------------------------------------------------------------------------
+
+
+# AF2
+
+process_af2_data(
+    raw_destress_data=raw_destress_data_af2,
+    af2db_uniprot_data=af2db_uniprot_data,
+    data_exploration_path=data_exploration_af2_path,
+    data_output_path=processed_data_af2_path,
+    missing_val_threshold=missing_val_threshold_af2,
+    organism_group_dict=organism_group_dict,
+    energy_field_list=energy_field_list,
+    labels=labels,
+    drop_cols_list=drop_cols,
+    constant_features_threshold=constant_features_threshold,
+    scaling_method_list=scaling_method_list,
+    corr_coeff_threshold=corr_coeff_threshold,
+)
