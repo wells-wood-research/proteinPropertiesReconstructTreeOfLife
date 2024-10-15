@@ -89,7 +89,8 @@ drop_cols = [
     "rosetta_rama_prepro",
     "rosetta_p_aa_pp",
     "evoef2_ref_total",
-    # "Mean_PLDDT",
+    "Mean_PLDDT",
+    "subcellular_location",
 ]
 
 # Defining the organism groups
@@ -187,7 +188,9 @@ labels = [
     "organism_scientific_name",
     "organism_group",
     "organism_group2",
-    # "Mean_PLDDT",
+    "uniprot_description",
+    "subcellular_location",
+    "Mean_PLDDT",
 ]
 
 # Defining a threshold for the spearman correlation coeffient
@@ -206,6 +209,9 @@ data_exploration_af2_path = "analysis/data_exploration/af2/"
 # Defining a path for the data output path for af2
 processed_data_af2_path = "data/processed_data/af2/"
 
+# Setting a flat to remove low quality af2 models
+remove_low_quality_af2_models = True
+
 
 # 2. Reading in data sets-------------------------------------------------------------------------------
 
@@ -215,16 +221,23 @@ raw_destress_data_af2 = pd.read_csv(raw_destress_data_af2_path)
 # Reading in af2db uniprot data
 af2db_uniprot_data = pd.read_csv(af2db_uniprot_data_path)
 
-# # Reading in the plddt scores for the af2 structural models
-# af2_plddt_scores = pd.read_csv(af2_plddt_scores_path)
-# af2_plddt_scores["design_name"] = (
-#     af2_plddt_scores["Filename"].str.replace(".pdb", "").astype(str)
-# )
+# Reading in the plddt scores for the af2 structural models
+af2_plddt_scores = pd.read_csv(af2_plddt_scores_path)
+af2_plddt_scores["design_name"] = (
+    af2_plddt_scores["Filename"].str.replace(".pdb", "").astype(str)
+)
 
-# # Joining this score onto the af2 structural model data set
-# raw_af2_destress_data = raw_af2_destress_data.merge(
-#     af2_plddt_scores[["design_name", "Mean_PLDDT"]], on="design_name", how="left"
-# )
+# Joining this score onto the af2 structural model data set
+raw_destress_data_af2 = raw_destress_data_af2.merge(
+    af2_plddt_scores[["design_name", "Mean_PLDDT"]], on="design_name", how="left"
+)
+
+if remove_low_quality_af2_models:
+    raw_destress_data_af2 = raw_destress_data_af2[
+        raw_destress_data_af2["Mean_PLDDT"] >= 70
+    ].reset_index(drop=True)
+else:
+    raw_destress_data_af2 = raw_destress_data_af2
 
 
 # Reading in raw PDB DE-STRESS data
@@ -248,4 +261,5 @@ process_af2_data(
     constant_features_threshold=constant_features_threshold,
     scaling_method_list=scaling_method_list,
     corr_coeff_threshold=corr_coeff_threshold,
+    remove_low_quality_af2_models=remove_low_quality_af2_models,
 )

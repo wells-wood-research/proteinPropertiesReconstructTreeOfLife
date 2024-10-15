@@ -459,6 +459,7 @@ def process_af2_data(
     constant_features_threshold,
     scaling_method_list,
     corr_coeff_threshold,
+    remove_low_quality_af2_models,
 ):
 
     # Removing features that have missing value prop greater than threshold

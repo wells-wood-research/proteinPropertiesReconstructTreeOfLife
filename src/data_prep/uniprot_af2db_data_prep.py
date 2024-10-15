@@ -113,16 +113,13 @@ protein_counts = af2db_uniprot_data.groupby("uniprot_description")[
     "organism_scientific_name"
 ].nunique()
 
-# Filter for proteins that appear in all 48 unique organisms
-proteins_in_all_organisms = protein_counts[protein_counts == np.max(protein_counts)]
+# Filter for proteins that appear in greater than 40 organisms
+proteins_in_all_organisms = protein_counts[protein_counts >= 40]
+proteins_in_all_organisms.sort_values(inplace=True, ascending=False)
+proteins_in_all_organisms.to_csv(
+    analysis_output_path + "uniprot_desc_org_count_gt_40.csv"
+)
 
-# If you need the list of such proteins:
-resulting_proteins = proteins_in_all_organisms.index.tolist()
-
-# Print the result
-print("Proteins found in " + str(np.max(protein_counts)) + " organisms")
-for protein in resulting_proteins:
-    print(protein)
 
 # Filtering to tRNA (guanine-N(7)-)-methyltransferase only
 af2db_uniprot_data_trna = af2db_uniprot_data[
