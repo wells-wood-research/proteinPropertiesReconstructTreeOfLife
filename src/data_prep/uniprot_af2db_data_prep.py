@@ -113,11 +113,11 @@ protein_counts = af2db_uniprot_data.groupby("uniprot_description")[
     "organism_scientific_name"
 ].nunique()
 
-# Filter for proteins that appear in greater than 40 organisms
-proteins_in_all_organisms = protein_counts[protein_counts >= 40]
+# Filter for proteins that appear in greater than 30 organisms
+proteins_in_all_organisms = protein_counts[protein_counts >= 30]
 proteins_in_all_organisms.sort_values(inplace=True, ascending=False)
 proteins_in_all_organisms.to_csv(
-    analysis_output_path + "uniprot_desc_org_count_gt_40.csv"
+    analysis_output_path + "uniprot_desc_org_count_gt_30.csv"
 )
 
 
@@ -141,35 +141,3 @@ af2db_uniprot_data.drop(["host_organism"], inplace=True, axis=1)
 af2db_uniprot_data.to_csv(
     data_output_path + "processed_af2db_uniprot_data.csv", index=False
 )
-
-
-# af2db_uniprot_data = raw_uniprot_data[
-#     ~raw_uniprot_data["organism_scientific_name"].isin(
-#         ["Unknown", "Metarhizium anisopliae", "Neovison vison"]
-#     )
-# ].reset_index(drop=True)
-
-# print(raw_uniprot_data)
-
-# # Define the specific GO code
-# cytoplasm_go_code = "GO:0005737"
-
-
-# raw_uniprot_data["go_codes"] = raw_uniprot_data["go_codes"].str.replace(":GO", ";GO")
-
-
-# raw_uniprot_data["go_cytoplasm_flag"] = raw_uniprot_data["go_codes"].apply(
-#     lambda x: 1 if cytoplasm_go_code in (x.split(";") if pd.notna(x) else []) else 0
-# )
-
-
-# # raw_uniprot_data["comments_cytoplasm_flag"]
-
-# cytoplasm_proteins = raw_uniprot_data[
-#     (raw_uniprot_data["go_cytoplasm_flag"] == 1)
-#     | (raw_uniprot_data["comments_cytoplasm_flag"] == 1)
-# ].reset_index(drop=True)
-
-# print(cytoplasm_proteins)
-
-# print(cytoplasm_proteins.value_counts("organism_scientific_name"))
