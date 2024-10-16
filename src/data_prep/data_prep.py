@@ -91,6 +91,7 @@ drop_cols = [
     "evoef2_ref_total",
     "Mean_PLDDT",
     "subcellular_location",
+    "cluster_representative",
 ]
 
 # Defining the organism groups
@@ -191,6 +192,7 @@ labels = [
     "uniprot_description",
     "subcellular_location",
     "Mean_PLDDT",
+    "cluster_representative",
 ]
 
 # Defining a threshold for the spearman correlation coeffient
@@ -220,6 +222,11 @@ raw_destress_data_af2 = pd.read_csv(raw_destress_data_af2_path)
 
 # Reading in af2db uniprot data
 af2db_uniprot_data = pd.read_csv(af2db_uniprot_data_path)
+
+# Reading in AFDB cluster data
+processed_af2db_clusters_data = pd.read_csv(
+    processed_data_af2_path + "processed_af2db_clusters_data.csv"
+)
 
 # Reading in the plddt scores for the af2 structural models
 af2_plddt_scores = pd.read_csv(af2_plddt_scores_path)
@@ -251,6 +258,7 @@ raw_destress_data_pdb = pd.read_csv(raw_destress_data_pdb_path)
 process_af2_data(
     raw_destress_data=raw_destress_data_af2,
     af2db_uniprot_data=af2db_uniprot_data,
+    af2db_cluster_data=processed_af2db_clusters_data,
     data_exploration_path=data_exploration_af2_path,
     data_output_path=processed_data_af2_path,
     missing_val_threshold=missing_val_threshold_af2,
@@ -261,5 +269,4 @@ process_af2_data(
     constant_features_threshold=constant_features_threshold,
     scaling_method_list=scaling_method_list,
     corr_coeff_threshold=corr_coeff_threshold,
-    remove_low_quality_af2_models=remove_low_quality_af2_models,
 )

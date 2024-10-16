@@ -222,6 +222,7 @@ def adding_destress_summary_cols(destress_data):
 def adding_af2db_uniprot_columns(
     destress_data,
     af2db_uniprot_data,
+    af2db_cluster_data,
     organism_group_dict,
 ):
 
@@ -242,6 +243,23 @@ def adding_af2db_uniprot_columns(
         on="uniprot_id",
         how="left",
     )
+
+    print(destress_af2db_uniprot_data)
+
+    # Joining on af2db cluster data
+    destress_af2db_uniprot_data = pd.merge(
+        destress_af2db_uniprot_data,
+        af2db_cluster_data[
+            [
+                "uniprot_id",
+                "cluster_representative",
+            ]
+        ],
+        on="uniprot_id",
+        how="left",
+    )
+
+    print(destress_af2db_uniprot_data)
 
     # Adding a new field to create an organism group
     destress_af2db_uniprot_data["organism_group"] = np.select(
@@ -449,6 +467,7 @@ def scale_destress_data_remove_high_corr(
 def process_af2_data(
     raw_destress_data,
     af2db_uniprot_data,
+    af2db_cluster_data,
     data_exploration_path,
     data_output_path,
     missing_val_threshold,
@@ -459,7 +478,6 @@ def process_af2_data(
     constant_features_threshold,
     scaling_method_list,
     corr_coeff_threshold,
-    remove_low_quality_af2_models,
 ):
 
     # Removing features that have missing value prop greater than threshold
@@ -499,6 +517,7 @@ def process_af2_data(
     destress_af2db_uniprot_data = adding_af2db_uniprot_columns(
         destress_data=destress_data,
         af2db_uniprot_data=af2db_uniprot_data,
+        af2db_cluster_data=af2db_cluster_data,
         organism_group_dict=organism_group_dict,
     )
 
