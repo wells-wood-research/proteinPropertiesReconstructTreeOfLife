@@ -15,7 +15,7 @@ processed_data_path = "data/processed_data/af2/"
 af2db_filtered_clusters_data = pd.read_csv(af2db_filtered_clusters_data_path)
 af2db_filtered_clusters_data.columns = [
     "cluster_representative",
-    "unuiprot_id",
+    "uniprot_id",
     "cluster_flag",
     "taxonomic_id",
 ]
