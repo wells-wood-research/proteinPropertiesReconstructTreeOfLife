@@ -138,6 +138,7 @@ def plot_latent_space_2d(
     palette,
     output_path,
     file_name,
+    style,
 ):
     x_id = str(int(x[-1]) + 1)
     y_id = str(int(y[-1]) + 1)
@@ -161,7 +162,7 @@ def plot_latent_space_2d(
         data=data,
         hue=hue,
         hue_order=hue_order,
-        # style=style,
+        style=style,
         alpha=alpha,
         palette=palette,
         s=s,

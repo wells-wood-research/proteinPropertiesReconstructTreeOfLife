@@ -30,14 +30,58 @@ def create_subfolder(directory, subfolder):
         print(f"Directory '{path}' already exists")
 
 
+def plot_pca_boxplots(
+    principal_components_list,
+    pca_data,
+    x,
+    output_path,
+    palette=None,
+    rows=2,
+    cols=2,
+):
+    # Default color palette if none is provided
+    if palette is None:
+        palette = sns.color_palette(["#0173b2", "#d55e00", "#029e73", "#cc78bc"], 4)
+
+    # Looping through the principal component list in batches of 4
+    for i in range(0, len(principal_components_list), 4):
+        fig, axs = plt.subplots(rows, cols, figsize=(10, 8))
+
+        for j in range(4):
+            if i + j < len(principal_components_list):
+                column = principal_components_list[i + j]
+                ax = axs[j // cols, j % cols]
+
+                plot = sns.boxplot(
+                    data=pca_data,
+                    x=x,
+                    y=column,
+                    palette=palette,
+                    ax=ax,
+                )
+                ax.set_title(f"Box plot of {column} by organism")
+                ax.set_ylabel(column)
+                ax.set_xlabel("Organism")
+                # Optionally rotate x-axis labels
+                ax.tick_params(axis="x", rotation=45)
+
+        plt.tight_layout()
+        plt.savefig(
+            output_path + f"pca_org_{i//4 + 1}.png",
+            bbox_inches="tight",
+            dpi=600,
+        )
+        plt.close()
+
+
 # 1. Defining variables------------------------------------------------------------
 
 # Defining the data set list
 dataset_list = ["af2"]
 
 # Defining the scaling methods list
-scaling_method_list = ["standard", "robust", "minmax"]
-# scaling_method_list = ["standard"]
+# scaling_method_list = ["standard", "robust", "minmax"]
+scaling_method_list = ["standard"]
 
 # Defining number of principal components
 n_components = 7
@@ -52,12 +96,15 @@ for i in range(0, n_components):
 hover_data = ["design_name", "dim0", "dim1", "organism_scientific_name"]
 
 # Creating a color palette
-palette = sns.color_palette(
-    ["#0173b2", "#d55e00", "#029e73", "#cc78bc", "#808080", "#f0e442"], 6
-)
+# palette = sns.color_palette(
+#     ["#0173b2", "#d55e00", "#029e73", "#cc78bc", "#808080", "#f0e442"], 6
+# )
+
+palette = sns.color_palette("tab10")
 
 # Defining data path
 data_path = "data/processed_data/"
+raw_data_path = "data/raw_data/"
 
 # Defining output data path
 output_path = "models/unsupervised/pca_single_proteins/"
@@ -108,6 +155,8 @@ for dataset in dataset_list:
         uniprot_desc_list = pd.read_csv(uniprot_desc_list_path)
         uniprot_desc_list = uniprot_desc_list["uniprot_description"].to_list()
 
+        # uniprot_desc_list = ["Histone H4"]
+
         # processed_destress_data = processed_destress_data[
         #     labels_df["uniprot_description"] == "tRNA (guanine-N(7)-)-methyltransferase"
         # ].reset_index(drop=True)
@@ -122,240 +171,171 @@ for dataset in dataset_list:
         # dataframe_to_fasta(labels_df[["design_name", "full_sequence"]])
 
         for uniprot_description in uniprot_desc_list:
+            if uniprot_description != "Uncharacterized protein":
 
-            # Filtering destress data
-            processed_destress_data_filt = processed_destress_data[
-                labels_df["uniprot_description"] == uniprot_description
-            ].reset_index(drop=True)
+                # Filtering destress data
+                processed_destress_data_filt = processed_destress_data[
+                    labels_df["uniprot_description"] == uniprot_description
+                ].reset_index(drop=True)
 
-            # Filtering labels data
-            labels_df_filt = labels_df[
-                labels_df["uniprot_description"] == uniprot_description
-            ].reset_index(drop=True)
+                # Filtering labels data
+                labels_df_filt = labels_df[
+                    labels_df["uniprot_description"] == uniprot_description
+                ].reset_index(drop=True)
 
-            # "ATP synthase subunit a"
+                labels_df_filt["mito_flag"] = labels_df_filt[
+                    "subcellular_location"
+                ].str.contains("Mitochondrion")
 
-            # Creating a subfolder for this uniprot description in the output directory
-            create_subfolder(output_path_scaled, uniprot_description)
-
-            # Creating new output directory
-            output_path_uniprot_desc = output_path_scaled + uniprot_description + "/"
-
-            # 4. Performing PCA--------------------------------------------------------------------------
-
-            # Calculating the variance explained
-            var_explained_df = pca_var_explained(
-                data=processed_destress_data_filt,
-                n_components=n_components,
-                file_name="pca_var_explained",
-                output_path=output_path_uniprot_desc,
-            )
-
-            # Performing PCA
-            pca_transformed_data = perform_pca(
-                data=processed_destress_data_filt,
-                labels_df=labels_df_filt,
-                n_components=n_components,
-                output_path=output_path_uniprot_desc,
-                file_path="pca_transformed_data",
-                components_file_path="comp_contrib",
-            )
-
-            # 5. Plotting 2d spaces---------------------------------------------------------------------
-
-            # Setting theme for plots
-            sns.set_style("whitegrid")
-
-            # Calculating the variance explained for PC1 and PC2
-            x_var_explained = var_explained_df["var_explained"][
-                var_explained_df["n_components"] == 1
-            ]
-            y_var_explained = var_explained_df["var_explained"][
-                var_explained_df["n_components"] == 2
-            ]
-            z_var_explained = var_explained_df["var_explained"][
-                var_explained_df["n_components"] == 3
-            ]
-
-            # Formatting this for the plots
-            x_var_explained_formatted = np.round(x_var_explained.iloc[0], 2) * 100
-            y_var_explained_formatted = np.round(y_var_explained.iloc[0], 2) * 100
-            z_var_explained_formatted = np.round(z_var_explained.iloc[0], 2) * 100
-
-            # Scatter plot of PC1 against PC2
-            plot = sns.scatterplot(
-                data=pca_transformed_data,
-                x="dim0",
-                y="dim1",
-                alpha=0.8,
-                s=50,
-                legend=True,
-                linewidth=0.2,
-                edgecolor="black",
-            )
-            plt.xlabel(
-                "PC1 (" + str(np.int64(x_var_explained_formatted)) + "%)", fontsize=15
-            )
-            plt.ylabel(
-                "PC2 (" + str(np.int64(y_var_explained_formatted)) + "%)", fontsize=15
-            )
-            plt.xticks(fontsize=15)
-            plt.yticks(fontsize=15)
-            plt.savefig(
-                output_path_uniprot_desc + "pca_embedding_12.png",
-                bbox_inches="tight",
-                dpi=600,
-            )
-            plt.close()
-
-            # Scatter plot of PC1 against PC3
-            plot = sns.scatterplot(
-                data=pca_transformed_data,
-                x="dim0",
-                y="dim2",
-                alpha=0.8,
-                s=50,
-                legend=True,
-                linewidth=0.2,
-                edgecolor="black",
-            )
-            plt.xlabel(
-                "PC1 (" + str(np.int64(x_var_explained_formatted)) + "%)", fontsize=15
-            )
-            plt.ylabel(
-                "PC3 (" + str(np.int64(z_var_explained_formatted)) + "%)", fontsize=15
-            )
-            plt.xticks(fontsize=15)
-            plt.yticks(fontsize=15)
-            plt.savefig(
-                output_path_uniprot_desc + "pca_embedding_13.png",
-                bbox_inches="tight",
-                dpi=600,
-            )
-            plt.close()
-
-            # Scatter plot of PC1 against PC3
-            plot = sns.scatterplot(
-                data=pca_transformed_data,
-                x="dim1",
-                y="dim2",
-                alpha=0.8,
-                s=50,
-                legend=True,
-                linewidth=0.2,
-                edgecolor="black",
-            )
-            plt.xlabel(
-                "PC2 (" + str(np.int64(y_var_explained_formatted)) + "%)", fontsize=15
-            )
-            plt.ylabel(
-                "PC3 (" + str(np.int64(z_var_explained_formatted)) + "%)", fontsize=15
-            )
-            plt.xticks(fontsize=15)
-            plt.yticks(fontsize=15)
-            plt.savefig(
-                output_path_uniprot_desc + "pca_embedding_23.png",
-                bbox_inches="tight",
-                dpi=600,
-            )
-            plt.close()
-
-            # Plotly scatter plot of PC1 against PC2
-            fig = px.scatter(
-                pca_transformed_data,
-                x="dim0",
-                y="dim1",
-                opacity=0.9,
-                hover_data=hover_data,
-                labels={
-                    "dim0": "PC1",
-                    "dim1": "PC2",
-                },
-            )
-            fig.update_traces(
-                marker=dict(size=10, line=dict(width=0.8)),
-                selector=dict(mode="markers"),
-            )
-            fig.write_html(output_path_uniprot_desc + "pca_embedding_12.html")
-
-            # Producing the same PCA plots with the points coloured by different labels
-            for label in label_dict.keys():
-
-                cmap = palette
-
-                hue_order = (
-                    pca_transformed_data.sort_values(by=label, ascending=False)[label]
-                    .unique()
-                    .tolist()
+                labels_df_filt["organism_group"] = np.where(
+                    labels_df_filt["mito_flag"] == 1,
+                    labels_df_filt["organism_group"]
+                    + "- Mitochondrion",  # value when mito_flag is 1
+                    labels_df_filt["organism_group"],  # keep original value otherwise
                 )
 
-                # Plotting PCA plot coloured by label
-                plot_latent_space_2d(
-                    data=pca_transformed_data.sort_values(by=label, ascending=False),
-                    var_explained_data=var_explained_df,
+                # processed_destress_data_filt = processed_destress_data[
+                #     labels_df["cluster_representative"] == "A0A4W4EL89"
+                # ].reset_index(drop=True)
+
+                # labels_df_filt = labels_df[
+                #     labels_df["cluster_representative"] == "A0A4W4EL89"
+                # ].reset_index(drop=True)
+
+                # "ATP synthase subunit a"
+
+                # Creating a subfolder for this uniprot description in the output directory
+                create_subfolder(output_path_scaled, uniprot_description)
+
+                # Creating new output directory
+                output_path_uniprot_desc = (
+                    output_path_scaled + uniprot_description + "/"
+                )
+
+                # 4. Performing PCA--------------------------------------------------------------------------
+
+                # Calculating the variance explained
+                var_explained_df = pca_var_explained(
+                    data=processed_destress_data_filt,
+                    n_components=n_components,
+                    file_name="pca_var_explained",
+                    output_path=output_path_uniprot_desc,
+                )
+
+                # Performing PCA
+                pca_transformed_data = perform_pca(
+                    data=processed_destress_data_filt,
+                    labels_df=labels_df_filt,
+                    n_components=n_components,
+                    output_path=output_path_uniprot_desc,
+                    file_path="pca_transformed_data",
+                    components_file_path="comp_contrib",
+                )
+
+                # 5. Plotting 2d spaces---------------------------------------------------------------------
+
+                # Setting theme for plots
+                sns.set_style("whitegrid")
+
+                # Calculating the variance explained for PC1 and PC2
+                x_var_explained = var_explained_df["var_explained"][
+                    var_explained_df["n_components"] == 1
+                ]
+                y_var_explained = var_explained_df["var_explained"][
+                    var_explained_df["n_components"] == 2
+                ]
+                z_var_explained = var_explained_df["var_explained"][
+                    var_explained_df["n_components"] == 3
+                ]
+
+                # Formatting this for the plots
+                x_var_explained_formatted = np.round(x_var_explained.iloc[0], 2) * 100
+                y_var_explained_formatted = np.round(y_var_explained.iloc[0], 2) * 100
+                z_var_explained_formatted = np.round(z_var_explained.iloc[0], 2) * 100
+
+                # Scatter plot of PC1 against PC2
+                plot = sns.scatterplot(
+                    data=pca_transformed_data,
                     x="dim0",
                     y="dim1",
-                    axes_prefix="PC",
-                    legend_title=label_dict[label],
-                    hue=label,
-                    hue_order=hue_order,
-                    # style=var,
-                    alpha=0.9,
-                    s=140,
-                    palette=cmap,
-                    output_path=output_path_uniprot_desc,
-                    file_name="pca_embedding_12" + label,
+                    alpha=0.8,
+                    s=50,
+                    legend=True,
+                    linewidth=0.2,
+                    edgecolor="black",
                 )
+                plt.xlabel(
+                    "PC1 (" + str(np.int64(x_var_explained_formatted)) + "%)",
+                    fontsize=15,
+                )
+                plt.ylabel(
+                    "PC2 (" + str(np.int64(y_var_explained_formatted)) + "%)",
+                    fontsize=15,
+                )
+                plt.xticks(fontsize=15)
+                plt.yticks(fontsize=15)
+                plt.savefig(
+                    output_path_uniprot_desc + "pca_embedding_12.png",
+                    bbox_inches="tight",
+                    dpi=600,
+                )
+                plt.close()
 
-                # Plotting PCA plot coloured by label
-                plot_latent_space_2d(
-                    data=pca_transformed_data.sort_values(by=label, ascending=False),
-                    var_explained_data=var_explained_df,
+                # Scatter plot of PC1 against PC3
+                plot = sns.scatterplot(
+                    data=pca_transformed_data,
                     x="dim0",
                     y="dim2",
-                    axes_prefix="PC",
-                    legend_title=label_dict[label],
-                    hue=label,
-                    hue_order=hue_order,
-                    # style=var,
-                    alpha=0.9,
-                    s=140,
-                    palette=cmap,
-                    output_path=output_path_uniprot_desc,
-                    file_name="pca_embedding_13" + label,
+                    alpha=0.8,
+                    s=50,
+                    legend=True,
+                    linewidth=0.2,
+                    edgecolor="black",
                 )
+                plt.xlabel(
+                    "PC1 (" + str(np.int64(x_var_explained_formatted)) + "%)",
+                    fontsize=15,
+                )
+                plt.ylabel(
+                    "PC3 (" + str(np.int64(z_var_explained_formatted)) + "%)",
+                    fontsize=15,
+                )
+                plt.xticks(fontsize=15)
+                plt.yticks(fontsize=15)
+                plt.savefig(
+                    output_path_uniprot_desc + "pca_embedding_13.png",
+                    bbox_inches="tight",
+                    dpi=600,
+                )
+                plt.close()
 
-                # Plotting PCA plot coloured by label
-                plot_latent_space_2d(
-                    data=pca_transformed_data.sort_values(by=label, ascending=False),
-                    var_explained_data=var_explained_df,
+                # Scatter plot of PC1 against PC3
+                plot = sns.scatterplot(
+                    data=pca_transformed_data,
                     x="dim1",
                     y="dim2",
-                    axes_prefix="PC",
-                    legend_title=label_dict[label],
-                    hue=label,
-                    hue_order=hue_order,
-                    # style=var,
-                    alpha=0.9,
-                    s=140,
-                    palette=cmap,
-                    output_path=output_path_uniprot_desc,
-                    file_name="pca_embedding_23" + label,
+                    alpha=0.8,
+                    s=50,
+                    legend=True,
+                    linewidth=0.2,
+                    edgecolor="black",
                 )
-
-                spectral_plot(
-                    pca_data=pca_transformed_data.sort_values(
-                        by="organism_scientific_name", ascending=True
-                    ),
-                    group_var="organism_group",
-                    value_var_list=dim_ids_list,
-                    filt_list=None,
-                    title=uniprot_description,
-                    legend_title="",
-                    output_path=output_path_uniprot_desc,
-                    file_name="spectral_plot",
-                    palette=palette,
+                plt.xlabel(
+                    "PC2 (" + str(np.int64(y_var_explained_formatted)) + "%)",
+                    fontsize=15,
                 )
+                plt.ylabel(
+                    "PC3 (" + str(np.int64(z_var_explained_formatted)) + "%)",
+                    fontsize=15,
+                )
+                plt.xticks(fontsize=15)
+                plt.yticks(fontsize=15)
+                plt.savefig(
+                    output_path_uniprot_desc + "pca_embedding_23.png",
+                    bbox_inches="tight",
+                    dpi=600,
+                )
+                plt.close()
 
                 # Plotly scatter plot of PC1 against PC2
                 fig = px.scatter(
@@ -368,11 +348,125 @@ for dataset in dataset_list:
                         "dim0": "PC1",
                         "dim1": "PC2",
                     },
-                    color="organism_group",
-                    # color_discrete_map=palette,
                 )
                 fig.update_traces(
-                    marker=dict(size=30, line=dict(width=0.8)),
+                    marker=dict(size=10, line=dict(width=0.8)),
                     selector=dict(mode="markers"),
                 )
                 fig.write_html(output_path_uniprot_desc + "pca_embedding_12.html")
+
+                plot_pca_boxplots(
+                    principal_components_list=["dim0", "dim1", "dim2", "dim3"],
+                    pca_data=pca_transformed_data,
+                    x="organism_group",
+                    output_path=output_path_uniprot_desc,
+                    palette=palette,
+                )
+
+                # Producing the same PCA plots with the points coloured by different labels
+                for label in label_dict.keys():
+
+                    cmap = palette
+
+                    hue_order = (
+                        pca_transformed_data.sort_values(by=label, ascending=False)[
+                            label
+                        ]
+                        .unique()
+                        .tolist()
+                    )
+
+                    # Plotting PCA plot coloured by label
+                    plot_latent_space_2d(
+                        data=pca_transformed_data.sort_values(
+                            by=label, ascending=False
+                        ),
+                        var_explained_data=var_explained_df,
+                        x="dim0",
+                        y="dim1",
+                        axes_prefix="PC",
+                        legend_title=label_dict[label],
+                        hue=label,
+                        hue_order=hue_order,
+                        style="cluster_representative",
+                        alpha=0.9,
+                        s=140,
+                        palette=cmap,
+                        output_path=output_path_uniprot_desc,
+                        file_name="pca_embedding_" + label,
+                    )
+
+                    # Plotting PCA plot coloured by label
+                    plot_latent_space_2d(
+                        data=pca_transformed_data.sort_values(
+                            by=label, ascending=False
+                        ),
+                        var_explained_data=var_explained_df,
+                        x="dim0",
+                        y="dim2",
+                        axes_prefix="PC",
+                        legend_title=label_dict[label],
+                        hue=label,
+                        hue_order=hue_order,
+                        style="cluster_representative",
+                        alpha=0.9,
+                        s=140,
+                        palette=cmap,
+                        output_path=output_path_uniprot_desc,
+                        file_name="pca_embedding_" + label,
+                    )
+
+                    # Plotting PCA plot coloured by label
+                    plot_latent_space_2d(
+                        data=pca_transformed_data.sort_values(
+                            by=label, ascending=False
+                        ),
+                        var_explained_data=var_explained_df,
+                        x="dim1",
+                        y="dim2",
+                        axes_prefix="PC",
+                        legend_title=label_dict[label],
+                        hue=label,
+                        hue_order=hue_order,
+                        style="cluster_representative",
+                        alpha=0.9,
+                        s=140,
+                        palette=cmap,
+                        output_path=output_path_uniprot_desc,
+                        file_name="pca_embedding_" + label,
+                    )
+
+                    spectral_plot(
+                        pca_data=pca_transformed_data.sort_values(
+                            by="organism_scientific_name", ascending=True
+                        ),
+                        group_var="organism_group",
+                        value_var_list=dim_ids_list,
+                        filt_list=None,
+                        title=uniprot_description,
+                        legend_title="",
+                        output_path=output_path_uniprot_desc,
+                        file_name="spectral_plot",
+                        palette=palette,
+                    )
+
+                    # Plotly scatter plot of PC1 against PC2
+                    fig = px.scatter(
+                        pca_transformed_data,
+                        x="dim0",
+                        y="dim1",
+                        opacity=0.9,
+                        hover_data=hover_data,
+                        labels={
+                            "dim0": "PC1",
+                            "dim1": "PC2",
+                        },
+                        color="organism_group",
+                        symbol="cluster_representative",
+                        # color_discrete_map=palette,
+                    )
+                    fig.update_traces(
+                        marker=dict(size=30, line=dict(width=0.8)),
+                        selector=dict(mode="markers"),
+                    )
+                    fig.write_html(output_path_uniprot_desc + "pca_embedding_12.html")
