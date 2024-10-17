@@ -30,50 +30,6 @@ def create_subfolder(directory, subfolder):
         print(f"Directory '{path}' already exists")
 
 
-def plot_pca_boxplots(
-    principal_components_list,
-    pca_data,
-    x,
-    output_path,
-    palette=None,
-    rows=2,
-    cols=2,
-):
-    # Default color palette if none is provided
-    if palette is None:
-        palette = sns.color_palette(["#0173b2", "#d55e00", "#029e73", "#cc78bc"], 4)
-
-    # Looping through the principal component list in batches of 4
-    for i in range(0, len(principal_components_list), 4):
-        fig, axs = plt.subplots(rows, cols, figsize=(10, 8))
-
-        for j in range(4):
-            if i + j < len(principal_components_list):
-                column = principal_components_list[i + j]
-                ax = axs[j // cols, j % cols]
-
-                plot = sns.boxplot(
-                    data=pca_data,
-                    x=x,
-                    y=column,
-                    palette=palette,
-                    ax=ax,
-                )
-                ax.set_title(f"Box plot of {column} by organism")
-                ax.set_ylabel(column)
-                ax.set_xlabel("Organism")
-                # Optionally rotate x-axis labels
-                ax.tick_params(axis="x", rotation=45)
-
-        plt.tight_layout()
-        plt.savefig(
-            output_path + f"pca_org_{i//4 + 1}.png",
-            bbox_inches="tight",
-            dpi=600,
-        )
-        plt.close()
-
-
 # 1. Defining variables------------------------------------------------------------
 
 # Defining the data set list
