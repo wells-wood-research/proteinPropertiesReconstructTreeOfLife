@@ -91,7 +91,7 @@ for dataset in dataset_list:
         processed_destress_data_avg = processed_destress_data_joined.groupby(
             ["organism_scientific_name", "organism_group", "organism_group2"],
             as_index=False,
-        )[processed_destress_data.columns.to_list()].median()
+        )[processed_destress_data.columns.to_list()].mean()
 
         # Extracting labels
         labels = processed_destress_data_avg[
