@@ -63,7 +63,7 @@ data_path = "data/processed_data/"
 raw_data_path = "data/raw_data/"
 
 # Defining output data path
-output_path = "models/unsupervised/pca_single_proteins/"
+output_path = "analysis/pca_single_proteins/"
 
 # Defining a list of the unipot descriptions
 uniprot_desc_list_path = (

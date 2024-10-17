@@ -34,7 +34,7 @@ palette = sns.color_palette(
 data_path = "data/processed_data/"
 
 # Defining output data path
-output_path = "models/unsupervised/pca_all_af2_models/"
+output_path = "analysis/pca_all_af2_models/"
 
 # Defining a dictionary of labels
 label_dict = {

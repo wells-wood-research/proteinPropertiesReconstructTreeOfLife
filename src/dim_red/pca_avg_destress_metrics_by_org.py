@@ -36,7 +36,7 @@ data_path = "data/processed_data/"
 raw_data_path = "data/raw_data/"
 
 # Defining output data path
-output_path = "models/unsupervised/pca_avg_by_org/"
+output_path = "analysis/pca_avg_by_org/"
 
 
 # Defining a dictionary of labels
@@ -91,7 +91,7 @@ for dataset in dataset_list:
         processed_destress_data_avg = processed_destress_data_joined.groupby(
             ["organism_scientific_name", "organism_group", "organism_group2"],
             as_index=False,
-        )[processed_destress_data.columns.to_list()].mean()
+        )[processed_destress_data.columns.to_list()].median()
 
         # Extracting labels
         labels = processed_destress_data_avg[
