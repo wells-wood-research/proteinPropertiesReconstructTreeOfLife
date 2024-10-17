@@ -36,7 +36,7 @@ data_path = "data/processed_data/"
 raw_data_path = "data/raw_data/"
 
 # Defining output data path
-output_path = "analysis/pca_avg_by_org/"
+output_path = "analysis/pca_avg_by_org_euk/"
 
 
 # Defining a dictionary of labels
@@ -86,6 +86,11 @@ for dataset in dataset_list:
             ],
             axis=1,
         )
+
+        # Filtering for euk
+        processed_destress_data_joined = processed_destress_data_joined[
+            processed_destress_data_joined["organism_group2"] == "Eukaryotes"
+        ].reset_index(drop=True)
 
         # Average each principal component grouped by organism
         processed_destress_data_avg = processed_destress_data_joined.groupby(
