@@ -22,7 +22,7 @@ data_path = "data/processed_data/af2/"
 raw_data_path = "data/raw_data/"
 
 # Defining output data path
-output_path = "analysis/hier_clustering_avg_by_org_euk/af2/"
+output_path = "analysis/hier_clustering_avg_by_org/af2/"
 
 # Defining a dictionary of labels
 label_dict = {
@@ -70,16 +70,20 @@ for scaling_method in scaling_method_list:
         axis=1,
     )
 
-    # Filtering for euk
-    processed_destress_data_joined = processed_destress_data_joined[
-        processed_destress_data_joined["organism_group2"] == "Eukaryotes"
-    ].reset_index(drop=True)
+    # # Filtering for euk
+    # processed_destress_data_joined = processed_destress_data_joined[
+    #     processed_destress_data_joined["organism_group2"] == "Eukaryotes"
+    # ].reset_index(drop=True)
 
     # Average each principal component grouped by organism
     processed_destress_data_avg = processed_destress_data_joined.groupby(
         ["organism_scientific_name", "organism_group", "organism_group2"],
         as_index=False,
     )[processed_destress_data.columns.to_list()].mean()
+
+    processed_destress_data_avg.update(
+        processed_destress_data_avg[["organism_scientific_name"]].map("'{}'".format)
+    )
 
     # Extracting labels
     organism_group_labels = processed_destress_data_avg["organism_group"].to_list()
