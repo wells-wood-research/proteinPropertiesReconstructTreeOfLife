@@ -52,13 +52,13 @@ af2db_uniprot_data.loc[
 print(af2db_uniprot_data)
 
 
-# Test for mismatching org names
-test = af2db_uniprot_data[
-    af2db_uniprot_data["organism_scientific_name"]
-    != af2db_uniprot_data["host_organism"]
-].reset_index(drop=True)
+# # Test for mismatching org names
+# test = af2db_uniprot_data[
+#     af2db_uniprot_data["organism_scientific_name"]
+#     != af2db_uniprot_data["host_organism"]
+# ].reset_index(drop=True)
 
-test.to_csv("mismatch_organism_test.csv")
+# test.to_csv("mismatch_organism_test.csv")
 
 # Etracting the org name and removing anything else including in this field (e.g strain etc.)
 af2db_uniprot_data["organism_scientific_name"] = (

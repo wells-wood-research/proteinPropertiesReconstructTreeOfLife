@@ -532,6 +532,20 @@ def process_af2_data(
         destress_af2db_uniprot_data["num_residues"], axis=0
     )
 
+    # Group by protein name and aggregate unique organisms
+    uniq_org_counts_by_structural_cluster = destress_af2db_uniprot_data.groupby(
+        "cluster_representative"
+    )["organism_scientific_name"].nunique()
+
+    # Filter for proteins that appear in greater than 30 organisms
+    uniq_org_counts_by_structural_cluster = uniq_org_counts_by_structural_cluster[
+        uniq_org_counts_by_structural_cluster >= 40
+    ]
+    uniq_org_counts_by_structural_cluster.sort_values(inplace=True, ascending=False)
+    uniq_org_counts_by_structural_cluster.to_csv(
+        data_output_path + "uniq_org_counts_by_structural_cluster_gt_40.csv"
+    )
+
     # Saving labels
     labels_df = save_destress_labels(
         data=destress_af2db_uniprot_data,
