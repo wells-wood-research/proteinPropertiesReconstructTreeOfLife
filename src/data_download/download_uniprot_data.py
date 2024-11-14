@@ -4,6 +4,7 @@ from typing import Any, Dict, Optional, List
 import requests
 import pandas as pd
 import multiprocessing as mp
+import random
 
 
 @dataclass
@@ -13,6 +14,7 @@ class UniprotResults:
     organism_class: Optional[str]
     go_codes: Optional[str]
     subcellular_location: Optional[str]
+    gene_encoding_type: Optional[str]
 
 
 def get_response_json(url, params):
@@ -78,12 +80,24 @@ def get_uniprot_results(uniprot_id):
     comments = result.get("comments", [])
     subcellular_locations_str = extract_subcellular_locations(comments)
 
+    # Assuming gene_encoding_location is always a list, potentially empty
+    gene_encoding_location = result.get("geneLocations", [])
+
+    # Initialize gene_encoding_location_type as empty string
+    gene_encoding_location_type = ""
+
+    # Check if the list is non-empty and the first item has the key 'geneEncodingType'
+    if gene_encoding_location and "geneEncodingType" in gene_encoding_location[0]:
+        # Safely accessing the 'geneEncodingType' from the first dictionary in the list
+        gene_encoding_location_type = gene_encoding_location[0]["geneEncodingType"]
+
     results = UniprotResults(
         uniprot_id,
         host_organism,
         organism_class,
         go_codes_str,
         subcellular_locations_str,
+        gene_encoding_location_type,
     )
 
     results_dict = results.__dict__
@@ -128,13 +142,17 @@ af2_file_names = raw_destress_data_af2["design_name"].str.split("-").str[1]
 # Extracting this as a list
 af2_uniprot_id_list = af2_file_names.to_list()
 
-af2_uniprot_id_list = af2_uniprot_id_list[0:100]
+af2_uniprot_id_list = random.sample(af2_uniprot_id_list, 2000)
 
 # Downloading Uniprot data
 results_df = download_uniprot_data(
     uniprot_id_list=af2_uniprot_id_list,
     output_path=output_path,
-    num_processes=4,
+    num_processes=6,
 )
 
-print(results_df)
+print(results_df["gene_encoding_type"].to_list())
+
+
+# results = get_uniprot_results("P07506")
+# print(results)
