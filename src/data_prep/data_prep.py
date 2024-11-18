@@ -8,9 +8,6 @@ import numpy as np
 
 # 1. Defining variables-------------------------------------------------------------------
 
-# Defining the data set list
-dataset_list = ["af2", "pdb"]
-
 # Defining the scaling methods list
 scaling_method_list = ["standard", "robust", "minmax"]
 
@@ -33,12 +30,8 @@ af2db_uniprot_data_path = processed_data_path + "processed_af2db_uniprot_data.cs
 af2_plddt_scores_path = raw_data_path + "af2_plddt_scores.csv"
 
 # Defining a list of DE-STRESS metrics which are energy field metrics
-energy_field_list = [
+pdb_energy_field_list = [
     "hydrophobic_fitness",
-    "budeff_total",
-    "budeff_steric",
-    "budeff_desolvation",
-    "budeff_charge",
     "evoef2_total",
     "evoef2_ref_total",
     "evoef2_intraR_total",
@@ -65,8 +58,16 @@ energy_field_list = [
     "rosetta_yhh_planarity",
 ]
 
+# Defining a list of DE-STRESS metrics which are energy field metrics
+af2_energy_field_list = pdb_energy_field_list + [
+    "budeff_total",
+    "budeff_steric",
+    "budeff_desolvation",
+    "budeff_charge",
+]
+
 # Defining cols to drop
-drop_cols = [
+pdb_drop_cols = [
     "ss_prop_alpha_helix",
     "ss_prop_beta_bridge",
     "ss_prop_beta_strand",
@@ -78,7 +79,6 @@ drop_cols = [
     "charge",
     "mass",
     "num_residues",
-    "uniprot_id",
     "aggrescan3d_total_value",
     "rosetta_pro_close",
     "rosetta_omega",
@@ -89,9 +89,14 @@ drop_cols = [
     "rosetta_rama_prepro",
     "rosetta_p_aa_pp",
     "evoef2_ref_total",
+]
+
+
+af2_drop_cols = pdb_drop_cols + [
     "Mean_PLDDT",
     "subcellular_location",
     "cluster_representative",
+    "uniprot_id",
 ]
 
 # Defining the organism groups
@@ -172,8 +177,9 @@ organism_group_dict = {
     "other": organism_other_list,
 }
 
+
 # Defining the labels that we are interested in
-labels = [
+pdb_labels = [
     "design_name",
     "full_sequence",
     "dssp_bin",
@@ -186,21 +192,29 @@ labels = [
     "hydrophobic_fitness",
     "aggrescan3d_avg_value",
     "aggrescan3d_avg_bin",
+]
+
+# Defining the labels that we are interested in
+af2_labels = pdb_labels + [
     "organism_scientific_name",
     "organism_group",
     "organism_group2",
+    "organism_group_mito",
+    "organism_group2_mito",
     "uniprot_description",
     "subcellular_location",
     "Mean_PLDDT",
     "cluster_representative",
+    "gene_encoding_type",
 ]
+
 
 # Defining a threshold for the spearman correlation coeffient
 # in order to remove highly correlated variables
-corr_coeff_threshold = 0.6
+af2_corr_coeff_threshold = 0.6
 
 # Defining a threshold to remove features that have pretty much the same value
-constant_features_threshold = 0.25
+af2_constant_features_threshold = 0.25
 
 # Defining a threshold for removing missing values for af2 data
 missing_val_threshold_af2 = 0.05
@@ -213,6 +227,23 @@ processed_data_af2_path = "data/processed_data/af2/"
 
 # Setting a flat to remove low quality af2 models
 remove_low_quality_af2_models = True
+
+
+# Defining a threshold for the spearman correlation coeffient
+# in order to remove highly correlated variables
+pdb_corr_coeff_threshold = 0.6
+
+# Defining a threshold to remove features that have pretty much the same value
+pdb_constant_features_threshold = 0.25
+
+# Defining a threshold for removing missing values for af2 data
+missing_val_threshold_pdb = 0.2
+
+# Defining a path for the data exploration for af2
+data_exploration_pdb_path = "analysis/data_exploration/pdb/"
+
+# Defining a path for the data output path for af2
+processed_data_pdb_path = "data/processed_data/pdb/"
 
 
 # 2. Reading in data sets-------------------------------------------------------------------------------
@@ -263,10 +294,25 @@ process_af2_data(
     data_output_path=processed_data_af2_path,
     missing_val_threshold=missing_val_threshold_af2,
     organism_group_dict=organism_group_dict,
-    energy_field_list=energy_field_list,
-    labels=labels,
-    drop_cols_list=drop_cols,
-    constant_features_threshold=constant_features_threshold,
+    energy_field_list=af2_energy_field_list,
+    labels=af2_labels,
+    drop_cols_list=af2_drop_cols,
+    constant_features_threshold=af2_constant_features_threshold,
     scaling_method_list=scaling_method_list,
-    corr_coeff_threshold=corr_coeff_threshold,
+    corr_coeff_threshold=af2_corr_coeff_threshold,
 )
+
+# PDB
+
+# process_pdb_data(
+#     raw_destress_data=raw_destress_data_pdb,
+#     data_exploration_path=data_exploration_pdb_path,
+#     data_output_path=processed_data_pdb_path,
+#     missing_val_threshold=missing_val_threshold_pdb,
+#     energy_field_list=pdb_energy_field_list,
+#     labels=pdb_labels,
+#     drop_cols_list=pdb_drop_cols,
+#     constant_features_threshold=pdb_constant_features_threshold,
+#     scaling_method_list=scaling_method_list,
+#     corr_coeff_threshold=pdb_corr_coeff_threshold,
+# )

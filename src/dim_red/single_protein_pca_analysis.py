@@ -52,11 +52,11 @@ for i in range(0, n_components):
 hover_data = ["design_name", "dim0", "dim1", "organism_scientific_name"]
 
 # Creating a color palette
-# palette = sns.color_palette(
-#     ["#0173b2", "#d55e00", "#029e73", "#cc78bc", "#808080", "#f0e442"], 6
-# )
+palette = sns.color_palette(
+    ["#0173b2", "#d55e00", "#029e73", "#cc78bc", "#808080", "#f0e442"], 6
+)
 
-palette = sns.color_palette("tab10")
+# palette = sns.color_palette("tab10")
 
 # Defining data path
 data_path = "data/processed_data/"
@@ -72,8 +72,8 @@ uniprot_desc_list_path = (
 
 # Defining a dictionary of labels
 label_dict = {
-    "organism_group": "Organism Group 1",
-    "organism_group2": "Organism Group 2",
+    "organism_group_mito": "Organism Group 1",
+    "organism_group2_mito": "Organism Group 2",
 }
 
 
@@ -107,11 +107,68 @@ for dataset in dataset_list:
         # Reading in labels
         labels_df = pd.read_csv(labels_df_path)
 
-        # Reading in uniprot description list
-        uniprot_desc_list = pd.read_csv(uniprot_desc_list_path)
-        uniprot_desc_list = uniprot_desc_list["uniprot_description"].to_list()
+        # # Filtering destress data
+        # processed_destress_data = processed_destress_data[
+        #     (labels_df["Mean_PLDDT"] >= 80)
+        #     & ~(
+        #         labels_df["design_name"].isin(
+        #             ["AF-Q5F599-F1-model_v4", "AF-K7L111-F1-model_v4"]
+        #         )
+        #     )
+        # ].reset_index(drop=True)
 
-        # uniprot_desc_list = ["Histone H4"]
+        # # Filtering labels data
+        # labels_df = labels_df[
+        #     (labels_df["Mean_PLDDT"] >= 80)
+        #     & ~labels_df["design_name"].isin(
+        #         ["AF-A0A0R0KJP6-F1-model_v4", "AF-A0A3Q0KVD7-F1-model_v4"]
+        #     )
+        # ].reset_index(drop=True)
+
+        # Filtering destress data
+        processed_destress_data = processed_destress_data[
+            (labels_df["Mean_PLDDT"] >= 80)
+            # & ~(
+            #     labels_df["design_name"].isin(
+            #         ["AF-A0A0R0KJP6-F1-model_v4", "AF-A0A3Q0KVD7-F1-model_v4"]
+            #     )
+            # )
+        ].reset_index(drop=True)
+
+        # Filtering labels data
+        labels_df = labels_df[
+            (labels_df["Mean_PLDDT"] >= 80)
+            # & ~labels_df["design_name"].isin(
+            #     ["AF-Q5F599-F1-model_v4", "AF-K7L111-F1-model_v4"]
+            # )
+        ].reset_index(drop=True)
+
+        # Filtering for gene_encoding_type 'Mitochondrion'
+        mitochondrion_df = labels_df[labels_df["gene_encoding_type"] == "Mitochondrion"]
+
+        # Grouping by 'uniprot_description' and counting unique 'organism_scientific_name'
+        grouped_descriptions = mitochondrion_df.groupby("uniprot_description")[
+            "organism_scientific_name"
+        ].nunique()
+
+        # Filtering descriptions with 10 or more unique organisms
+        descriptions_with_10plus_organisms = grouped_descriptions[
+            grouped_descriptions >= 10
+        ]
+
+        # Listing descriptions
+        uniprot_desc_list = descriptions_with_10plus_organisms.index.tolist()
+
+        print(uniprot_desc_list)
+
+        # # Reading in uniprot description list
+        # uniprot_desc_list = pd.read_csv(uniprot_desc_list_path)
+        # uniprot_desc_list = uniprot_desc_list["uniprot_description"].to_list()
+
+        uniprot_desc_list = ["NADH-ubiquinone oxidoreductase chain 4"]
+        # uniprot_desc_list = ["Cytochrome b"]
+        # uniprot_desc_list = ["ATP synthase subunit a"]
+        # U5E5N1
 
         # processed_destress_data = processed_destress_data[
         #     labels_df["uniprot_description"] == "tRNA (guanine-N(7)-)-methyltransferase"
@@ -131,24 +188,30 @@ for dataset in dataset_list:
 
                 # Filtering destress data
                 processed_destress_data_filt = processed_destress_data[
-                    labels_df["uniprot_description"] == uniprot_description
+                    (labels_df["uniprot_description"] == uniprot_description)
+                    # & (labels_df["Mean_PLDDT"] >= 80)
                 ].reset_index(drop=True)
 
                 # Filtering labels data
                 labels_df_filt = labels_df[
-                    labels_df["uniprot_description"] == uniprot_description
+                    (labels_df["uniprot_description"] == uniprot_description)
+                    # & (labels_df["Mean_PLDDT"] >= 80)
                 ].reset_index(drop=True)
 
-                labels_df_filt["mito_flag"] = labels_df_filt[
-                    "subcellular_location"
-                ].str.contains("Mitochondrion")
+                # print(
+                #     labels_df_filt[["design_name", "uniprot_description", "Mean_PLDDT"]]
+                # )
 
-                labels_df_filt["organism_group"] = np.where(
-                    labels_df_filt["mito_flag"] == 1,
-                    labels_df_filt["organism_group"]
-                    + "- Mitochondrion",  # value when mito_flag is 1
-                    labels_df_filt["organism_group"],  # keep original value otherwise
-                )
+                # labels_df_filt["mito_flag"] = labels_df_filt[
+                #     "subcellular_location"
+                # ].str.contains("Mitochondrion")
+
+                # labels_df_filt["organism_group"] = np.where(
+                #     labels_df_filt["mito_flag"] == 1,
+                #     labels_df_filt["organism_group"]
+                #     + "- Mitochondrion",  # value when mito_flag is 1
+                #     labels_df_filt["organism_group"],  # keep original value otherwise
+                # )
 
                 # processed_destress_data_filt = processed_destress_data[
                 #     labels_df["cluster_representative"] == "A0A4W4EL89"
@@ -314,7 +377,7 @@ for dataset in dataset_list:
                 plot_pca_boxplots(
                     principal_components_list=["dim0", "dim1", "dim2", "dim3"],
                     pca_data=pca_transformed_data,
-                    x="organism_group",
+                    x="organism_group_mito",
                     output_path=output_path_uniprot_desc,
                     palette=palette,
                 )
@@ -325,7 +388,7 @@ for dataset in dataset_list:
                     cmap = palette
 
                     hue_order = (
-                        pca_transformed_data.sort_values(by=label, ascending=False)[
+                        pca_transformed_data.sort_values(by=label, ascending=True)[
                             label
                         ]
                         .unique()
@@ -334,9 +397,7 @@ for dataset in dataset_list:
 
                     # Plotting PCA plot coloured by label
                     plot_latent_space_2d(
-                        data=pca_transformed_data.sort_values(
-                            by=label, ascending=False
-                        ),
+                        data=pca_transformed_data.sort_values(by=label, ascending=True),
                         var_explained_data=var_explained_df,
                         x="dim0",
                         y="dim1",
@@ -344,7 +405,7 @@ for dataset in dataset_list:
                         legend_title=label_dict[label],
                         hue=label,
                         hue_order=hue_order,
-                        style="cluster_representative",
+                        # style="cluster_representative",
                         alpha=0.9,
                         s=140,
                         palette=cmap,
@@ -354,9 +415,7 @@ for dataset in dataset_list:
 
                     # Plotting PCA plot coloured by label
                     plot_latent_space_2d(
-                        data=pca_transformed_data.sort_values(
-                            by=label, ascending=False
-                        ),
+                        data=pca_transformed_data.sort_values(by=label, ascending=True),
                         var_explained_data=var_explained_df,
                         x="dim0",
                         y="dim2",
@@ -364,7 +423,7 @@ for dataset in dataset_list:
                         legend_title=label_dict[label],
                         hue=label,
                         hue_order=hue_order,
-                        style="cluster_representative",
+                        # style="cluster_representative",
                         alpha=0.9,
                         s=140,
                         palette=cmap,
@@ -374,9 +433,7 @@ for dataset in dataset_list:
 
                     # Plotting PCA plot coloured by label
                     plot_latent_space_2d(
-                        data=pca_transformed_data.sort_values(
-                            by=label, ascending=False
-                        ),
+                        data=pca_transformed_data.sort_values(by=label, ascending=True),
                         var_explained_data=var_explained_df,
                         x="dim1",
                         y="dim2",
@@ -384,7 +441,7 @@ for dataset in dataset_list:
                         legend_title=label_dict[label],
                         hue=label,
                         hue_order=hue_order,
-                        style="cluster_representative",
+                        # style="cluster_representative",
                         alpha=0.9,
                         s=140,
                         palette=cmap,
@@ -417,7 +474,7 @@ for dataset in dataset_list:
                             "dim0": "PC1",
                             "dim1": "PC2",
                         },
-                        color="organism_group",
+                        color="organism_group_mito",
                         symbol="cluster_representative",
                         # color_discrete_map=palette,
                     )

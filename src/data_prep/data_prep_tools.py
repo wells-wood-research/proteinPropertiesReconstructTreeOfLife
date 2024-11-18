@@ -238,6 +238,7 @@ def adding_af2db_uniprot_columns(
                 "organism_scientific_name",
                 "subcellular_location",
                 "uniprot_description",
+                "gene_encoding_type",
             ]
         ],
         on="uniprot_id",
@@ -324,7 +325,40 @@ def adding_af2db_uniprot_columns(
         default="Unknown",
     )
 
+    # Adding a new field to create an organism group with mitochondrion proteins identified
+    destress_af2db_uniprot_data["organism_group_mito"] = np.select(
+        [
+            destress_af2db_uniprot_data["gene_encoding_type"].isna(),
+            ~destress_af2db_uniprot_data["gene_encoding_type"].isna(),
+        ],
+        [
+            destress_af2db_uniprot_data["organism_group"],
+            destress_af2db_uniprot_data["organism_group"]
+            + " - "
+            + destress_af2db_uniprot_data["gene_encoding_type"],
+        ],
+        default="Unknown",
+    )
+
+    # Adding a new field to create an organism group with mitochondrion proteins identified
+    destress_af2db_uniprot_data["organism_group2_mito"] = np.select(
+        [
+            destress_af2db_uniprot_data["gene_encoding_type"].isna(),
+            ~destress_af2db_uniprot_data["gene_encoding_type"].isna(),
+        ],
+        [
+            destress_af2db_uniprot_data["organism_group2"],
+            destress_af2db_uniprot_data["organism_group2"]
+            + " - "
+            + destress_af2db_uniprot_data["gene_encoding_type"],
+        ],
+        default="Unknown",
+    )
+
+    print(destress_af2db_uniprot_data.value_counts("organism_group"))
+    print(destress_af2db_uniprot_data.value_counts("organism_group_mito"))
     print(destress_af2db_uniprot_data.value_counts("organism_group2"))
+    print(destress_af2db_uniprot_data.value_counts("organism_group2_mito"))
 
     return destress_af2db_uniprot_data
 
@@ -558,6 +592,93 @@ def process_af2_data(
     # Filtering destress columns from drop cols list, low variance/constant and non numeric
     destress_data_filtered = filtering_destress_metrics(
         destress_data=destress_af2db_uniprot_data,
+        drop_cols_list=drop_cols_list,
+        data_exploration_path=data_exploration_path,
+        constant_features_threshold=constant_features_threshold,
+    )
+
+    # Scaling the data sets
+    for scaling_method in scaling_method_list:
+        print(scaling_method)
+        scaled_destress_data = scale_destress_data_remove_high_corr(
+            destress_data=destress_data_filtered,
+            scaling_method=scaling_method,
+            data_exploration_path=data_exploration_path,
+            data_output_path=data_output_path,
+            corr_coeff_threshold=corr_coeff_threshold,
+        )
+
+        print(scaled_destress_data)
+
+
+# Defining a function to process the af2 data
+def process_pdb_data(
+    raw_destress_data,
+    data_exploration_path,
+    data_output_path,
+    missing_val_threshold,
+    energy_field_list,
+    labels,
+    drop_cols_list,
+    constant_features_threshold,
+    scaling_method_list,
+    corr_coeff_threshold,
+):
+
+    # Removing features that have missing value prop greater than threshold
+    destress_data, dropped_cols_miss_vals = remove_missing_val_features(
+        data=raw_destress_data,
+        output_path=data_exploration_path,
+        threshold=missing_val_threshold,
+    )
+
+    print("Columns dropped because of missing values")
+    print(dropped_cols_miss_vals)
+
+    #  Calculating total number of structures that DE-STRESS ran for
+    num_structures = destress_data.shape[0]
+
+    # Now removing any rows that have missing values
+    destress_data = destress_data.dropna(axis=0).reset_index(drop=True)
+
+    # Calculating number of structures in the data set after removing missing values
+    num_structures_missing_removed = destress_data.shape[0]
+
+    # Calculating how many structures are left after removing those with missing values for the DE-STRESS metrics.
+    print(
+        "DE-STRESS ran for "
+        + str(num_structures)
+        + " AF2 structures in total and after removing missing values there are "
+        + str(num_structures_missing_removed)
+        + " structures remaining in the data set. This means "
+        + str(100 * (round((num_structures_missing_removed / num_structures), 4)))
+        + "% of the protein structures are covered in this data set."
+    )
+
+    # Adding DE-STRESS summary columns
+    destress_data = adding_destress_summary_cols(destress_data=destress_data)
+
+    # Normalising energy field values by the number of residues
+    destress_data.loc[
+        :,
+        energy_field_list,
+    ] = destress_data.loc[
+        :,
+        energy_field_list,
+    ].div(destress_data["num_residues"], axis=0)
+
+    # Saving labels
+    labels_df = save_destress_labels(
+        data=destress_data,
+        labels=labels,
+        output_path=data_output_path,
+        file_path="labels",
+    )
+    print(labels_df)
+
+    # Filtering destress columns from drop cols list, low variance/constant and non numeric
+    destress_data_filtered = filtering_destress_metrics(
+        destress_data=destress_data,
         drop_cols_list=drop_cols_list,
         data_exploration_path=data_exploration_path,
         constant_features_threshold=constant_features_threshold,

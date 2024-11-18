@@ -57,8 +57,8 @@ af2db_cluster_list_path = (
 
 # Defining a dictionary of labels
 label_dict = {
-    "organism_group": "Organism Group 1",
-    "organism_group2": "Organism Group 2",
+    "organism_group_mito": "Organism Group 1",
+    "organism_group2_mito": "Organism Group 2",
 }
 
 
@@ -92,9 +92,22 @@ for dataset in dataset_list:
         # Reading in labels
         labels_df = pd.read_csv(labels_df_path)
 
+        processed_destress_data = processed_destress_data[
+            ~labels_df["design_name"].isin(
+                ["AF-Q7HP05-F1-model_v4", "AF-A0A5K1K958-F1-model_v4"]
+            )
+        ].reset_index(drop=True)
+
+        labels_df = labels_df[
+            ~labels_df["design_name"].isin(
+                ["AF-Q7HP05-F1-model_v4", "AF-A0A5K1K958-F1-model_v4"]
+            )
+        ].reset_index(drop=True)
+
         # Reading in uniprot description list
         af2db_cluster_list = pd.read_csv(af2db_cluster_list_path)
-        af2db_cluster_list = af2db_cluster_list["cluster_representative"].to_list()
+        # af2db_cluster_list = af2db_cluster_list["cluster_representative"].to_list()
+        af2db_cluster_list = ["A0A7Y5N281"]
 
         for af2db_cluster in af2db_cluster_list:
 
@@ -260,7 +273,7 @@ for dataset in dataset_list:
             plot_pca_boxplots(
                 principal_components_list=["dim0", "dim1", "dim2", "dim3"],
                 pca_data=pca_transformed_data,
-                x="organism_group",
+                x="organism_group_mito",
                 output_path=output_path_af2db_cluster,
                 palette=palette,
             )
@@ -271,14 +284,14 @@ for dataset in dataset_list:
                 cmap = palette
 
                 hue_order = (
-                    pca_transformed_data.sort_values(by=label, ascending=False)[label]
+                    pca_transformed_data.sort_values(by=label, ascending=True)[label]
                     .unique()
                     .tolist()
                 )
 
                 # Plotting PCA plot coloured by label
                 plot_latent_space_2d(
-                    data=pca_transformed_data.sort_values(by=label, ascending=False),
+                    data=pca_transformed_data.sort_values(by=label, ascending=True),
                     var_explained_data=var_explained_df,
                     x="dim0",
                     y="dim1",
@@ -286,7 +299,7 @@ for dataset in dataset_list:
                     legend_title=label_dict[label],
                     hue=label,
                     hue_order=hue_order,
-                    # style="cluster_representative",
+                    # style="organism_group",
                     alpha=0.9,
                     s=140,
                     palette=cmap,
@@ -296,7 +309,7 @@ for dataset in dataset_list:
 
                 # Plotting PCA plot coloured by label
                 plot_latent_space_2d(
-                    data=pca_transformed_data.sort_values(by=label, ascending=False),
+                    data=pca_transformed_data.sort_values(by=label, ascending=True),
                     var_explained_data=var_explained_df,
                     x="dim0",
                     y="dim2",
@@ -304,7 +317,7 @@ for dataset in dataset_list:
                     legend_title=label_dict[label],
                     hue=label,
                     hue_order=hue_order,
-                    # style="cluster_representative",
+                    # style="organism_group",
                     alpha=0.9,
                     s=140,
                     palette=cmap,
@@ -314,7 +327,7 @@ for dataset in dataset_list:
 
                 # Plotting PCA plot coloured by label
                 plot_latent_space_2d(
-                    data=pca_transformed_data.sort_values(by=label, ascending=False),
+                    data=pca_transformed_data.sort_values(by=label, ascending=True),
                     var_explained_data=var_explained_df,
                     x="dim1",
                     y="dim2",
@@ -322,7 +335,7 @@ for dataset in dataset_list:
                     legend_title=label_dict[label],
                     hue=label,
                     hue_order=hue_order,
-                    # style="cluster_representative",
+                    # style="organism_group",
                     alpha=0.9,
                     s=140,
                     palette=cmap,
@@ -334,7 +347,7 @@ for dataset in dataset_list:
                     pca_data=pca_transformed_data.sort_values(
                         by="organism_scientific_name", ascending=True
                     ),
-                    group_var="organism_group",
+                    group_var="organism_group_mito",
                     value_var_list=dim_ids_list,
                     filt_list=None,
                     title=af2db_cluster,
@@ -355,7 +368,7 @@ for dataset in dataset_list:
                         "dim0": "PC1",
                         "dim1": "PC2",
                     },
-                    color="organism_group",
+                    color="organism_group_mito",
                     # symbol="cluster_representative",
                     # color_discrete_map=palette,
                 )

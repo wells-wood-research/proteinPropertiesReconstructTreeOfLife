@@ -23,26 +23,29 @@ for i in range(0, n_components):
 
 # Defining hiver data for plotly
 hover_data = ["dim0", "dim1", "organism_scientific_name"]
+# hover_data = ["dim0", "dim1"]
 
-# Creating a color palette
-palette = sns.color_palette(
-    ["#0173b2", "#d55e00", "#029e73", "#cc78bc", "#808080", "#f0e442"], 6
-)
+# # Creating a color palette
+# palette = sns.color_palette(
+#     ["#0173b2", "#d55e00", "#029e73", "#cc78bc", "#808080", "#f0e442"], 6
+# )
 
-# palette = sns.color_palette("tab10")
+palette = sns.color_palette("tab10")
 
 # Defining data path
 data_path = "data/processed_data/"
 raw_data_path = "data/raw_data/"
 
 # Defining output data path
-output_path = "analysis/pca_avg_by_org_euk/"
+output_path = "analysis/pca_avg_by_org/"
 
 
 # Defining a dictionary of labels
 label_dict = {
-    "organism_group": "Organism Group 1",
-    "organism_group2": "Organism Group 2",
+    # "organism_group": "Organism Group 1",
+    # "organism_group2": "Organism Group 2",
+    # "organism_group_mito": "Organism Group 1 - Mito",
+    "organism_group2_mito": "Organism Group 2 - Mito",
 }
 
 
@@ -81,31 +84,65 @@ for dataset in dataset_list:
             [
                 processed_destress_data,
                 labels_df[
-                    ["organism_scientific_name", "organism_group", "organism_group2"]
+                    [
+                        "organism_scientific_name",
+                        "organism_group",
+                        # "organism_group2",
+                        # "organism_group_mito",
+                        "organism_group2_mito",
+                    ]
                 ],
             ],
             axis=1,
         )
 
-        # Filtering for euk
+        # # Filtering for euk
+        # processed_destress_data_joined = processed_destress_data_joined[
+        #     processed_destress_data_joined["organism_group2"] == "Eukaryotes"
+        # ].reset_index(drop=True)
+        # Filtering out some organism groups
         processed_destress_data_joined = processed_destress_data_joined[
-            processed_destress_data_joined["organism_group2"] == "Eukaryotes"
+            ~processed_destress_data_joined["organism_group2_mito"].isin(
+                [
+                    "Eukaryotes- Plasmid",
+                    "Eukaryotes- Apicoplast",
+                    "Prokaryotes- Plasmid",
+                ]
+            )
         ].reset_index(drop=True)
 
         # Average each principal component grouped by organism
         processed_destress_data_avg = processed_destress_data_joined.groupby(
-            ["organism_scientific_name", "organism_group", "organism_group2"],
+            [
+                "organism_scientific_name",
+                "organism_group",
+                # "organism_group2",
+                # "organism_group_mito",
+                "organism_group2_mito",
+            ],
             as_index=False,
         )[processed_destress_data.columns.to_list()].mean()
 
         # Extracting labels
         labels = processed_destress_data_avg[
-            ["organism_scientific_name", "organism_group", "organism_group2"]
+            [
+                "organism_scientific_name",
+                "organism_group",
+                # "organism_group2",
+                # "organism_group_mito",
+                "organism_group2_mito",
+            ]
         ]
 
         # Removing these labels from destress data
         processed_destress_data_avg.drop(
-            ["organism_scientific_name", "organism_group", "organism_group2"],
+            [
+                "organism_scientific_name",
+                "organism_group",
+                # "organism_group2",
+                # "organism_group_mito",
+                "organism_group2_mito",
+            ],
             inplace=True,
             axis=1,
         )
@@ -135,7 +172,7 @@ for dataset in dataset_list:
         plot_pca_boxplots(
             principal_components_list=["dim0", "dim1", "dim2", "dim3"],
             pca_data=pca_transformed_data,
-            x="organism_group",
+            x="organism_group2_mito",
             output_path=output_path_scaled,
             palette=palette,
         )
@@ -161,6 +198,7 @@ for dataset in dataset_list:
                 legend_title=label_dict[label],
                 hue=label,
                 hue_order=hue_order,
+                style="organism_group",
                 alpha=0.9,
                 s=140,
                 palette=cmap,
@@ -178,6 +216,7 @@ for dataset in dataset_list:
                 legend_title=label_dict[label],
                 hue=label,
                 hue_order=hue_order,
+                style="organism_group",
                 alpha=0.9,
                 s=140,
                 palette=cmap,
@@ -195,6 +234,7 @@ for dataset in dataset_list:
                 legend_title=label_dict[label],
                 hue=label,
                 hue_order=hue_order,
+                style="organism_group",
                 alpha=0.9,
                 s=140,
                 palette=cmap,
@@ -202,19 +242,19 @@ for dataset in dataset_list:
                 file_name="pca_embedding_" + label,
             )
 
-            spectral_plot(
-                pca_data=pca_transformed_data.sort_values(
-                    by="organism_scientific_name", ascending=True
-                ),
-                group_var="organism_group",
-                value_var_list=dim_ids_list,
-                filt_list=None,
-                title="",
-                legend_title="",
-                output_path=output_path_scaled,
-                file_name="spectral_plot",
-                palette=palette,
-            )
+            # spectral_plot(
+            #     pca_data=pca_transformed_data.sort_values(
+            #         by="organism_scientific_name", ascending=True
+            #     ),
+            #     group_var="organism_group",
+            #     value_var_list=dim_ids_list,
+            #     filt_list=None,
+            #     title="",
+            #     legend_title="",
+            #     output_path=output_path_scaled,
+            #     file_name="spectral_plot",
+            #     palette=palette,
+            # )
 
             # Plotly scatter plot of PC1 against PC2
             fig = px.scatter(
@@ -227,7 +267,7 @@ for dataset in dataset_list:
                     "dim0": "PC1",
                     "dim1": "PC2",
                 },
-                color="organism_group",
+                color="organism_group2_mito",
                 # color_discrete_map=palette,
             )
             fig.update_traces(

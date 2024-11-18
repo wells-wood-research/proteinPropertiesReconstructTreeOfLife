@@ -37,7 +37,9 @@ print(raw_af2db_data.shape)
 # Joining these data sets together by uniprot id
 af2db_uniprot_data = pd.merge(
     raw_af2db_data,
-    raw_uniprot_data[["uniprot_id", "host_organism", "subcellular_location"]],
+    raw_uniprot_data[
+        ["uniprot_id", "host_organism", "subcellular_location", "gene_encoding_type"]
+    ],
     on="uniprot_id",
     how="left",
 )
