@@ -23,7 +23,7 @@ data_path = "data/processed_data/af2/"
 raw_data_path = "data/raw_data/"
 
 # Defining output data path
-output_path = "analysis/kmeans_avg_by_org_euk/af2/"
+output_path = "analysis/kmeans_avg_by_org/af2/"
 
 # Defining a dictionary of labels
 label_dict = {
@@ -51,7 +51,7 @@ clustering_results_master = pd.DataFrame(
 )
 
 # Grouping var
-group_var = "organism_group"
+group_var = "organism_group2"
 
 # 2. Looping through the different scaling methods--------------------------------------------------
 
@@ -88,10 +88,10 @@ for scaling_method in scaling_method_list:
         axis=1,
     )
 
-    # Filtering for euk
-    processed_destress_data_joined = processed_destress_data_joined[
-        processed_destress_data_joined["organism_group2"] == "Eukaryotes"
-    ].reset_index(drop=True)
+    # # Filtering for euk
+    # processed_destress_data_joined = processed_destress_data_joined[
+    #     processed_destress_data_joined["organism_group2"] == "Eukaryotes"
+    # ].reset_index(drop=True)
 
     # Average each principal component grouped by organism
     processed_destress_data_avg = processed_destress_data_joined.groupby(
@@ -183,6 +183,7 @@ for scaling_method in scaling_method_list:
     ].reset_index(drop=True)
 
     plt.figure(figsize=(6, 5))
+    sns.set_style("whitegrid")
 
     adj_rand_ind_plot(
         data=clustering_results_master_scaler,

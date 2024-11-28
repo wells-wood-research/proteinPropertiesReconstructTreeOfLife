@@ -7,11 +7,11 @@ from dim_red_tools import *
 # 1. Defining variables------------------------------------------------------------
 
 # Defining the data set list
-dataset_list = ["pdb"]
+dataset_list = ["af2"]
 
 # Defining the scaling methods list
-scaling_method_list = ["standard", "robust", "minmax"]
-# scaling_method_list = ["standard"]
+# scaling_method_list = ["standard", "robust", "minmax"]
+scaling_method_list = ["minmax"]
 
 # Defining number of principal components
 n_components = 7
@@ -46,7 +46,7 @@ label_dict = {
 
 # Defining lsits of organisms for the spectral plots
 organism_animal_list = [
-    "Danio rerio",
+    # "Danio rerio",
     "Mus musculus",
     "Rattus norvegicus",
     "Homo sapiens",
@@ -207,7 +207,7 @@ for dataset in dataset_list:
                 hue_order = ["Alpha Helix", "Beta Strand", "Loop", "Mixed"]
             else:
                 hue_order = (
-                    pca_transformed_data.sort_values(by=label, ascending=False)[label]
+                    pca_transformed_data.sort_values(by=label, ascending=True)[label]
                     .unique()
                     .tolist()
                 )
@@ -222,7 +222,7 @@ for dataset in dataset_list:
                 legend_title=label_dict[label],
                 hue=label,
                 hue_order=hue_order,
-                # style=var,
+                style=None,
                 alpha=0.9,
                 s=70,
                 palette=cmap,
@@ -230,75 +230,75 @@ for dataset in dataset_list:
                 file_name="pca_embedding_" + label,
             )
 
-            if dataset == "af2":
+        if dataset == "af2":
 
-                # Computing spectral plots for different organisms
-                spectral_plot(
-                    pca_data=pca_transformed_data.sort_values(
-                        by="organism_scientific_name", ascending=True
-                    ),
-                    group_var="organism_scientific_name",
-                    value_var_list=dim_ids_list,
-                    filt_list=organism_plant_list,
-                    title="Plant",
-                    legend_title="",
-                    output_path=output_path_scaled,
-                    file_name="spectral_plot_plant",
-                    palette=palette,
-                )
+            # Computing spectral plots for different organisms
+            spectral_plot(
+                pca_data=pca_transformed_data.sort_values(
+                    by="organism_scientific_name", ascending=True
+                ),
+                group_var="organism_scientific_name",
+                value_var_list=dim_ids_list,
+                filt_list=organism_plant_list,
+                title="Plant",
+                legend_title="",
+                output_path=output_path_scaled,
+                file_name="spectral_plot_plant",
+                palette=palette,
+            )
 
-                spectral_plot(
-                    pca_data=pca_transformed_data.sort_values(
-                        by="organism_scientific_name", ascending=True
-                    ),
-                    group_var="organism_scientific_name",
-                    value_var_list=dim_ids_list,
-                    filt_list=organism_bacteria_list,
-                    title="Bacteria",
-                    legend_title="",
-                    output_path=output_path_scaled,
-                    file_name="spectral_plot_bacteria",
-                    palette=palette,
-                )
+            spectral_plot(
+                pca_data=pca_transformed_data.sort_values(
+                    by="organism_scientific_name", ascending=True
+                ),
+                group_var="organism_scientific_name",
+                value_var_list=dim_ids_list,
+                filt_list=organism_bacteria_list,
+                title="Bacteria",
+                legend_title="",
+                output_path=output_path_scaled,
+                file_name="spectral_plot_bacteria",
+                palette=palette,
+            )
 
-                spectral_plot(
-                    pca_data=pca_transformed_data.sort_values(
-                        by="organism_scientific_name", ascending=True
-                    ),
-                    group_var="organism_scientific_name",
-                    value_var_list=dim_ids_list,
-                    filt_list=organism_animal_list,
-                    title="Animal",
-                    legend_title="",
-                    output_path=output_path_scaled,
-                    file_name="spectral_plot_animal",
-                    palette=palette,
-                )
+            spectral_plot(
+                pca_data=pca_transformed_data.sort_values(
+                    by="organism_scientific_name", ascending=True
+                ),
+                group_var="organism_scientific_name",
+                value_var_list=dim_ids_list,
+                filt_list=organism_animal_list,
+                title="Animal",
+                legend_title="",
+                output_path=output_path_scaled,
+                file_name="spectral_plot_animal",
+                palette=palette,
+            )
 
-                spectral_plot(
-                    pca_data=pca_transformed_data.sort_values(
-                        by="organism_scientific_name", ascending=True
-                    ),
-                    group_var="organism_scientific_name",
-                    value_var_list=dim_ids_list,
-                    filt_list=organism_fungi_list,
-                    title="Funghi",
-                    legend_title="",
-                    output_path=output_path_scaled,
-                    file_name="spectral_plot_funghi",
-                    palette=palette,
-                )
+            spectral_plot(
+                pca_data=pca_transformed_data.sort_values(
+                    by="organism_scientific_name", ascending=True
+                ),
+                group_var="organism_scientific_name",
+                value_var_list=dim_ids_list,
+                filt_list=organism_fungi_list,
+                title="Funghi",
+                legend_title="",
+                output_path=output_path_scaled,
+                file_name="spectral_plot_funghi",
+                palette=palette,
+            )
 
-                spectral_plot(
-                    pca_data=pca_transformed_data.sort_values(
-                        by="organism_scientific_name", ascending=True
-                    ),
-                    group_var="organism_scientific_name",
-                    value_var_list=dim_ids_list,
-                    filt_list=organism_protozoan_list,
-                    title="Protozoan",
-                    legend_title="",
-                    output_path=output_path_scaled,
-                    file_name="spectral_plot_protozoan",
-                    palette=palette,
-                )
+            spectral_plot(
+                pca_data=pca_transformed_data.sort_values(
+                    by="organism_scientific_name", ascending=True
+                ),
+                group_var="organism_scientific_name",
+                value_var_list=dim_ids_list,
+                filt_list=organism_protozoan_list,
+                title="Protozoan",
+                legend_title="",
+                output_path=output_path_scaled,
+                file_name="spectral_plot_protozoan",
+                palette=palette,
+            )

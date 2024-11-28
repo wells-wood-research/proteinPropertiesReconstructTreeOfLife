@@ -59,6 +59,8 @@ def adj_rand_ind_wssd_plot(data, title, file_name, output_path):
 
 
 def adj_rand_ind_plot(data, title, file_name, output_path):
+    # Setting theme for plots
+    sns.set_style("whitegrid")
     sns.lineplot(
         data=data,
         x="n_clusters",

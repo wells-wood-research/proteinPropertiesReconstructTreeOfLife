@@ -138,7 +138,7 @@ def plot_latent_space_2d(
     palette,
     output_path,
     file_name,
-    # style,
+    style,
 ):
     x_id = str(int(x[-1]) + 1)
     y_id = str(int(y[-1]) + 1)
@@ -155,21 +155,39 @@ def plot_latent_space_2d(
 
     # plt.figure(figsize=(9, 6))
 
-    # PCA 2d scatter plot
-    plot = sns.scatterplot(
-        x=x,
-        y=y,
-        data=data,
-        hue=hue,
-        hue_order=hue_order,
-        # style=style,
-        alpha=alpha,
-        palette=palette,
-        s=s,
-        legend=True,
-        linewidth=0.2,
-        edgecolor="black",
-    )
+    if style:
+
+        # PCA 2d scatter plot
+        plot = sns.scatterplot(
+            x=x,
+            y=y,
+            data=data,
+            hue=hue,
+            hue_order=hue_order,
+            style=style,
+            alpha=alpha,
+            palette=palette,
+            s=s,
+            legend=True,
+            linewidth=0.2,
+            edgecolor="black",
+        )
+    else:
+        # PCA 2d scatter plot
+        plot = sns.scatterplot(
+            x=x,
+            y=y,
+            data=data,
+            hue=hue,
+            hue_order=hue_order,
+            alpha=alpha,
+            palette=palette,
+            s=s,
+            legend=True,
+            linewidth=0.2,
+            edgecolor="black",
+        )
+
     plt.xlabel(
         axes_prefix + x_id + " (" + str(np.int64(x_var_explained_formatted)) + "%)",
         fontsize=17,
@@ -186,9 +204,10 @@ def plot_latent_space_2d(
     #     plot,
     #     "upper left",
     #     bbox_to_anchor=(1, 1),
-    #     frameon=False,
+    #     frameon=True,
     #     title=legend_title,
     #     title_fontsize=14,
+    #     fontsize=12,
     # )
 
     # handles, labels = plt.gca().get_legend_handles_labels()
@@ -197,28 +216,28 @@ def plot_latent_space_2d(
     # order = [3, 2, 1, 0]
 
     # add legend to plot
-    plt.legend(
-        # [handles[idx] for idx in order],
-        # [labels[idx] for idx in order],
-        loc="lower center",
-        bbox_to_anchor=(0.5, -0.55),
-        # loc="upper left",
-        # bbox_to_anchor=(1, 1),
-        frameon=False,
-        fontsize=16,
-        ncols=2,
-        title=legend_title,
-        title_fontsize=16,
-    )
-    # sns.move_legend(
-    #     plot,
-    #     "lower center",
-    #     bbox_to_anchor=(0.5, -0.35),
+    # plt.legend(
+    #     # [handles[idx] for idx in order],
+    #     # [labels[idx] for idx in order],
+    #     loc="lower center",
+    #     bbox_to_anchor=(0.5, -0.65),
+    #     # loc="upper left",
+    #     # bbox_to_anchor=(1, 1),
     #     frameon=False,
-    #     ncols=5,
+    #     fontsize=16,
+    #     ncols=3,
     #     title=legend_title,
-    #     title_fontsize=14,
+    #     title_fontsize=16,
     # )
+    sns.move_legend(
+        plot,
+        "lower center",
+        bbox_to_anchor=(0.5, -0.45),
+        frameon=True,
+        ncols=3,
+        title=legend_title,
+        title_fontsize=14,
+    )
     plt.savefig(
         output_path + file_name + x_id + y_id + ".png",
         bbox_inches="tight",
@@ -302,15 +321,15 @@ def spectral_plot(
 
     # Extracting the id of the pca dimension
     pca_data_long["dim_id"] = pca_data_long["dim_id"].str.replace("dim", "")
-    # pca_data_filt = pca_data_long[
-    #     pca_data_long["organism_scientific_name"].isin(filt_list)
-    # ].reset_index(drop=True)
+    pca_data_filt = pca_data_long[
+        pca_data_long["organism_scientific_name"].isin(filt_list)
+    ].reset_index(drop=True)
 
-    pca_data_filt = pca_data_long
+    # pca_data_filt = pca_data_long
 
-    pca_data_filt["dim_id"] = np.float64(pca_data_filt["dim_id"]) + 1
+    # pca_data_filt["dim_id"] = float(pca_data_filt["dim_id"]) + 1
 
-    # pca_data_filt = pca_data_filt[np.float(pca_data_filt["dim_id"]) < 5].reset_index(
+    # pca_data_filt = pca_data_filt[float(pca_data_filt["dim_id"]) < 5].reset_index(
     #     drop=True
     # )
 
@@ -321,7 +340,7 @@ def spectral_plot(
         x="dim_id",
         y="dim_value",
         hue=group_var,
-        # errorbar="sd",
+        errorbar=("ci", 99),
         legend="full",
         data=pca_data_filt,
         linewidth=5,
@@ -370,7 +389,7 @@ def spectral_plot(
     )
 
     plt.yticks(fontsize=16)
-    # plt.ylim([-1.2, 1.2])
+    plt.ylim([-0.9, 0.9])
     # plt.ylim([-0.08, 0.12])
 
     plt.savefig(

@@ -32,7 +32,7 @@ ss_prop_pi_helix,0,0.0
 ss_prop_hbonded_turn,0,0.0
 ss_prop_bend,0,0.0
 ss_prop_loop,0,0.0
-hydrophobic_fitness,14,2.4803081251350882e-05
+hydrophobic_fitness,13,3.4778700453728275e-05
 isoelectric_point,0,0.0
 charge,0,0.0
 mass,0,0.0
@@ -47,7 +47,7 @@ evoef2_ref_total,0,0.0
 evoef2_intraR_total,0,0.0
 evoef2_interS_total,0,0.0
 evoef2_interD_total,0,0.0
-dfire2_total,103841,0.18396976858725192
+dfire2_total,59081,0.15805849242359388
 rosetta_total,0,0.0
 rosetta_fa_atr,0,0.0
 rosetta_fa_rep,0,0.0
@@ -71,3 +71,4 @@ aggrescan3d_total_value,0,0.0
 aggrescan3d_avg_value,0,0.0
 aggrescan3d_min_value,0,0.0
 aggrescan3d_max_value,0,0.0
+Mean_PLDDT,0,0.0

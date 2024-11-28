@@ -81,9 +81,9 @@ for scaling_method in scaling_method_list:
         as_index=False,
     )[processed_destress_data.columns.to_list()].mean()
 
-    processed_destress_data_avg.update(
-        processed_destress_data_avg[["organism_scientific_name"]].map("'{}'".format)
-    )
+    # processed_destress_data_avg.update(
+    #     processed_destress_data_avg[["organism_scientific_name"]].map("'{}'".format)
+    # )
 
     # Extracting labels
     organism_group_labels = processed_destress_data_avg["organism_group"].to_list()

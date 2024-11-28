@@ -43,9 +43,9 @@ output_path = "analysis/pca_avg_by_org/"
 # Defining a dictionary of labels
 label_dict = {
     # "organism_group": "Organism Group 1",
-    # "organism_group2": "Organism Group 2",
+    "Domain": "Organism Group",
     # "organism_group_mito": "Organism Group 1 - Mito",
-    "organism_group2_mito": "Organism Group 2 - Mito",
+    # "organism_group2_mito": "Organism Group 2 - Mito",
 }
 
 
@@ -87,9 +87,9 @@ for dataset in dataset_list:
                     [
                         "organism_scientific_name",
                         "organism_group",
-                        # "organism_group2",
+                        "organism_group2",
                         # "organism_group_mito",
-                        "organism_group2_mito",
+                        # "organism_group2_mito",
                     ]
                 ],
             ],
@@ -101,24 +101,24 @@ for dataset in dataset_list:
         #     processed_destress_data_joined["organism_group2"] == "Eukaryotes"
         # ].reset_index(drop=True)
         # Filtering out some organism groups
-        processed_destress_data_joined = processed_destress_data_joined[
-            ~processed_destress_data_joined["organism_group2_mito"].isin(
-                [
-                    "Eukaryotes- Plasmid",
-                    "Eukaryotes- Apicoplast",
-                    "Prokaryotes- Plasmid",
-                ]
-            )
-        ].reset_index(drop=True)
+        # processed_destress_data_joined = processed_destress_data_joined[
+        #     ~processed_destress_data_joined["organism_group2_mito"].isin(
+        #         [
+        #             "Eukaryotes- Plasmid",
+        #             "Eukaryotes- Apicoplast",
+        #             "Prokaryotes- Plasmid",
+        #         ]
+        #     )
+        # ].reset_index(drop=True)
 
         # Average each principal component grouped by organism
         processed_destress_data_avg = processed_destress_data_joined.groupby(
             [
                 "organism_scientific_name",
                 "organism_group",
-                # "organism_group2",
+                "organism_group2",
                 # "organism_group_mito",
-                "organism_group2_mito",
+                # "organism_group2_mito",
             ],
             as_index=False,
         )[processed_destress_data.columns.to_list()].mean()
@@ -128,9 +128,9 @@ for dataset in dataset_list:
             [
                 "organism_scientific_name",
                 "organism_group",
-                # "organism_group2",
+                "organism_group2",
                 # "organism_group_mito",
-                "organism_group2_mito",
+                # "organism_group2_mito",
             ]
         ]
 
@@ -139,13 +139,21 @@ for dataset in dataset_list:
             [
                 "organism_scientific_name",
                 "organism_group",
-                # "organism_group2",
+                "organism_group2",
                 # "organism_group_mito",
-                "organism_group2_mito",
+                # "organism_group2_mito",
             ],
             inplace=True,
             axis=1,
         )
+
+        # Rename columns
+        labels.rename(
+            columns={"organism_group2": "Domain", "organism_group": "Kingdom"},
+            inplace=True,
+        )
+
+        print(labels)
 
         # 4. Performing PCA--------------------------------------------------------------------------
 
@@ -172,7 +180,7 @@ for dataset in dataset_list:
         plot_pca_boxplots(
             principal_components_list=["dim0", "dim1", "dim2", "dim3"],
             pca_data=pca_transformed_data,
-            x="organism_group2_mito",
+            x="Kingdom",
             output_path=output_path_scaled,
             palette=palette,
         )
@@ -195,10 +203,11 @@ for dataset in dataset_list:
                 x="dim0",
                 y="dim1",
                 axes_prefix="PC",
-                legend_title=label_dict[label],
+                # legend_title=label_dict[label],
+                legend_title="",
                 hue=label,
                 hue_order=hue_order,
-                style="organism_group",
+                style="Kingdom",
                 alpha=0.9,
                 s=140,
                 palette=cmap,
@@ -213,10 +222,11 @@ for dataset in dataset_list:
                 x="dim0",
                 y="dim2",
                 axes_prefix="PC",
-                legend_title=label_dict[label],
+                # legend_title=label_dict[label],
+                legend_title="",
                 hue=label,
                 hue_order=hue_order,
-                style="organism_group",
+                style="Kingdom",
                 alpha=0.9,
                 s=140,
                 palette=cmap,
@@ -231,10 +241,11 @@ for dataset in dataset_list:
                 x="dim1",
                 y="dim2",
                 axes_prefix="PC",
-                legend_title=label_dict[label],
+                # legend_title=label_dict[label],
+                legend_title="",
                 hue=label,
                 hue_order=hue_order,
-                style="organism_group",
+                style="Kingdom",
                 alpha=0.9,
                 s=140,
                 palette=cmap,
@@ -267,7 +278,7 @@ for dataset in dataset_list:
                     "dim0": "PC1",
                     "dim1": "PC2",
                 },
-                color="organism_group2_mito",
+                color="Domain",
                 # color_discrete_map=palette,
             )
             fig.update_traces(
