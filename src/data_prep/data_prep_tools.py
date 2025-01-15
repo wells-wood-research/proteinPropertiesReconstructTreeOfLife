@@ -428,6 +428,7 @@ def scale_destress_data_remove_high_corr(
     data_exploration_path,
     data_output_path,
     corr_coeff_threshold,
+    file_name,
 ):
 
     data_exploration_scaled_output_path = data_exploration_path + scaling_method + "/"
@@ -490,11 +491,41 @@ def scale_destress_data_remove_high_corr(
     # )
 
     destress_data_remove_high_corr.to_csv(
-        data_scaled_output_path + "processed_destress_data_scaled.csv",
+        data_scaled_output_path + file_name + ".csv",
         index=False,
     )
 
     return destress_data_remove_high_corr
+
+
+# def select_random_by_organism_and_cluster(destress_data):
+#     """
+#     Randomly selects one row for each combination of 'organism_scientific_name' and
+#     'cluster_representative' from a given DataFrame.
+
+#     Parameters:
+#     df (pandas.DataFrame): A dataframe containing at least the columns 'organism_scientific_name' and 'cluster_representative'.
+
+#     Returns:
+#     pandas.DataFrame: A dataframe with randomly selected rows for each unique combination of
+#                       'organism_scientific_name' and 'cluster_representative'.
+#     """
+#     # Convert columns to the proper type to prevent any possible mistakes in grouping
+#     destress_data["organism_scientific_name"] = destress_data[
+#         "organism_scientific_name"
+#     ].astype(str)
+#     destress_data["cluster_representative"] = destress_data[
+#         "cluster_representative"
+#     ].astype(str)
+
+#     # Group by both 'organism_scientific_name' and 'cluster_representative', then sample one entry from each group
+#     destress_data_non_redundant = (
+#         destress_data.groupby(["organism_scientific_name", "cluster_representative"])
+#         .apply(lambda x: x.sample(1))
+#         .reset_index(drop=True)
+#     )
+
+#     return destress_data_non_redundant
 
 
 # Defining a function to process the af2 data
@@ -512,6 +543,7 @@ def process_af2_data(
     constant_features_threshold,
     scaling_method_list,
     corr_coeff_threshold,
+    remove_redundant_af2_models,
 ):
 
     # Removing features that have missing value prop greater than threshold
@@ -580,12 +612,22 @@ def process_af2_data(
         data_output_path + "uniq_org_counts_by_structural_cluster_gt_40.csv"
     )
 
+    # Removing redundant structures
+    if remove_redundant_af2_models:
+        labels_file_name = "labels_nonredundant"
+        processed_destress_data_file_name = (
+            "processed_destress_data_scaled_nonredundant"
+        )
+    else:
+        labels_file_name = "labels"
+        processed_destress_data_file_name = "processed_destress_data_scaled"
+
     # Saving labels
     labels_df = save_destress_labels(
         data=destress_af2db_uniprot_data,
         labels=labels,
         output_path=data_output_path,
-        file_path="labels",
+        file_path=labels_file_name,
     )
     print(labels_df)
 
@@ -606,6 +648,7 @@ def process_af2_data(
             data_exploration_path=data_exploration_path,
             data_output_path=data_output_path,
             corr_coeff_threshold=corr_coeff_threshold,
+            file_name=processed_destress_data_file_name,
         )
 
         print(scaled_destress_data)

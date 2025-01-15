@@ -29,6 +29,9 @@ af2db_uniprot_data_path = processed_data_path + "processed_af2db_uniprot_data.cs
 # Defining the file path for the plddt scores
 af2_plddt_scores_path = raw_data_path + "af2_plddt_scores.csv"
 
+# Defining the file path for the non redundant
+af2_structures_nonredundant_path = raw_data_path + "af2_structures_non_redundant.csv"
+
 # Defining a list of DE-STRESS metrics which are energy field metrics
 pdb_energy_field_list = [
     "hydrophobic_fitness",
@@ -225,9 +228,13 @@ data_exploration_af2_path = "analysis/data_exploration/af2/"
 # Defining a path for the data output path for af2
 processed_data_af2_path = "data/processed_data/af2/"
 
-# Setting a flat to remove low quality af2 models
+# Setting a flag to remove low quality af2 models
 remove_low_quality_af2_models = True
 
+# Setting a flag to remove redundant structures by organism
+# This randomly selects one structure for each organism and
+# FoldSeek cluster representative
+remove_redundant_af2_models = True
 
 # Defining a threshold for the spearman correlation coeffient
 # in order to remove highly correlated variables
@@ -278,6 +285,18 @@ else:
     raw_destress_data_af2 = raw_destress_data_af2
 
 
+# Reading in the nonredundant af2 models data
+af2_structures_nonredundant = pd.read_csv(af2_structures_nonredundant_path)
+
+if remove_redundant_af2_models:
+    raw_destress_data_af2 = raw_destress_data_af2[
+        raw_destress_data_af2["design_name"].isin(
+            af2_structures_nonredundant["design_name"].to_list()
+        )
+    ].reset_index(drop=True)
+else:
+    raw_destress_data_af2 = raw_destress_data_af2
+
 # Reading in raw PDB DE-STRESS data
 raw_destress_data_pdb = pd.read_csv(raw_destress_data_pdb_path)
 
@@ -300,6 +319,7 @@ process_af2_data(
     constant_features_threshold=af2_constant_features_threshold,
     scaling_method_list=scaling_method_list,
     corr_coeff_threshold=af2_corr_coeff_threshold,
+    remove_redundant_af2_models=remove_redundant_af2_models,
 )
 
 # PDB

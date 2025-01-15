@@ -45,11 +45,11 @@ for scaling_method in scaling_method_list:
 
     # Defining the path for processed AF2 DE-STRESS data
     processed_destress_data_path = (
-        data_path_scaled + "processed_destress_data_scaled.csv"
+        data_path_scaled + "processed_destress_data_scaled_nonredundant.csv"
     )
 
     # Defining file paths for labels
-    labels_df_path = data_path + "labels.csv"
+    labels_df_path = data_path + "labels_nonredundant.csv"
 
     # 3. Reading in data------------------------------------------------------------------------
 

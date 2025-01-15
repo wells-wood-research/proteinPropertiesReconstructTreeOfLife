@@ -5,13 +5,13 @@ library(TreeDist)
 load("~/GitRepos/proteinPropertiesReconstructTreeOfLife/data/raw_data/randomTreeDistances.rda")
 
 # Define the directory path where the .nwk files are located
-directory_path <- "~/GitRepos/proteinPropertiesReconstructTreeOfLife/analysis/hier_clustering_avg_by_org_euk/af2/"
+directory_path <- "~/GitRepos/proteinPropertiesReconstructTreeOfLife/analysis/hier_clustering_avg_by_org/af2/"
 
 # Get a list of all .nwk files in the directory
 nwk_files <- list.files(directory_path, pattern = "\\.nwk$", full.names = TRUE)
 
 # Specify the path to the reference .nwk file
-reference_nwk_file <- "~/GitRepos/proteinPropertiesReconstructTreeOfLife/data/processed_data/ncbi_phylo_tree_euk.phy"
+reference_nwk_file <- "~/GitRepos/proteinPropertiesReconstructTreeOfLife/data/processed_data/ncbi_phylo_tree.phy"
 
 # Load the reference tree
 reference_tree <- ape::read.tree(reference_nwk_file)
@@ -39,10 +39,10 @@ print(distances_list)
 distances_df <- as.data.frame(distances_list)
 
 # Specify the file path for the CSV file
-csv_file <- "~/GitRepos/proteinPropertiesReconstructTreeOfLife/analysis/hier_clustering_avg_by_org_euk/af2/tree_distances.csv"
+csv_file <- "~/GitRepos/proteinPropertiesReconstructTreeOfLife/analysis/hier_clustering_avg_by_org/af2/tree_distances.csv"
 
 # Export the data frame to a CSV file
 write.csv(distances_df, file = csv_file, row.names = FALSE)
 
-expectedCID <- randomTreeDistances["cid", "mean", "32"]
+expectedCID <- randomTreeDistances["cid", "mean", "48"]
 print(expectedCID)

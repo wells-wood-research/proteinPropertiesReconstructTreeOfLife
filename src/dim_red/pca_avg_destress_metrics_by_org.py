@@ -65,11 +65,11 @@ for dataset in dataset_list:
 
         # Defining the path for processed AF2 DE-STRESS data
         processed_destress_data_path = (
-            data_path_scaled + "processed_destress_data_scaled.csv"
+            data_path_scaled + "processed_destress_data_scaled_nonredundant.csv"
         )
 
         # Defining file paths for labels
-        labels_df_path = data_path_dataset + "labels.csv"
+        labels_df_path = data_path_dataset + "labels_nonredundant.csv"
 
         # 3. Reading in data------------------------------------------------------------------------
 
