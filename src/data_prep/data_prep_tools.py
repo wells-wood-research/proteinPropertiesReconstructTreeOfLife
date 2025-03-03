@@ -355,11 +355,6 @@ def adding_af2db_uniprot_columns(
         default="Unknown",
     )
 
-    print(destress_af2db_uniprot_data.value_counts("organism_group"))
-    print(destress_af2db_uniprot_data.value_counts("organism_group_mito"))
-    print(destress_af2db_uniprot_data.value_counts("organism_group2"))
-    print(destress_af2db_uniprot_data.value_counts("organism_group2_mito"))
-
     return destress_af2db_uniprot_data
 
 
@@ -612,6 +607,12 @@ def process_af2_data(
         data_output_path + "uniq_org_counts_by_structural_cluster_gt_40.csv"
     )
 
+    # Outputting total number of proteins by organism
+    num_proteins_by_org = destress_af2db_uniprot_data.groupby(
+        "organism_scientific_name"
+    )["design_name"].nunique()
+    num_proteins_by_org.to_csv(data_output_path + "num_proteins_by_org.csv")
+
     # Removing redundant structures
     if remove_redundant_af2_models:
         labels_file_name = "labels_nonredundant"
@@ -666,6 +667,7 @@ def process_pdb_data(
     constant_features_threshold,
     scaling_method_list,
     corr_coeff_threshold,
+    processed_destress_data_file_name,
 ):
 
     # Removing features that have missing value prop greater than threshold
@@ -736,6 +738,7 @@ def process_pdb_data(
             data_exploration_path=data_exploration_path,
             data_output_path=data_output_path,
             corr_coeff_threshold=corr_coeff_threshold,
+            file_name=processed_destress_data_file_name,
         )
 
         print(scaled_destress_data)

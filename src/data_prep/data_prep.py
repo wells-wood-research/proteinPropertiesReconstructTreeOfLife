@@ -5,7 +5,6 @@
 from data_prep_tools import *
 import numpy as np
 
-
 # 1. Defining variables-------------------------------------------------------------------
 
 # Defining the scaling methods list
@@ -252,6 +251,9 @@ data_exploration_pdb_path = "analysis/data_exploration/pdb/"
 # Defining a path for the data output path for af2
 processed_data_pdb_path = "data/processed_data/pdb/"
 
+# Defining file name for pdb data output
+processed_destress_data_file_name_pdb = "processed_destress_data_scaled"
+
 
 # 2. Reading in data sets-------------------------------------------------------------------------------
 
@@ -305,34 +307,35 @@ raw_destress_data_pdb = pd.read_csv(raw_destress_data_pdb_path)
 
 # AF2
 
-process_af2_data(
-    raw_destress_data=raw_destress_data_af2,
-    af2db_uniprot_data=af2db_uniprot_data,
-    af2db_cluster_data=processed_af2db_clusters_data,
-    data_exploration_path=data_exploration_af2_path,
-    data_output_path=processed_data_af2_path,
-    missing_val_threshold=missing_val_threshold_af2,
-    organism_group_dict=organism_group_dict,
-    energy_field_list=af2_energy_field_list,
-    labels=af2_labels,
-    drop_cols_list=af2_drop_cols,
-    constant_features_threshold=af2_constant_features_threshold,
-    scaling_method_list=scaling_method_list,
-    corr_coeff_threshold=af2_corr_coeff_threshold,
-    remove_redundant_af2_models=remove_redundant_af2_models,
-)
+# process_af2_data(
+#     raw_destress_data=raw_destress_data_af2,
+#     af2db_uniprot_data=af2db_uniprot_data,
+#     af2db_cluster_data=processed_af2db_clusters_data,
+#     data_exploration_path=data_exploration_af2_path,
+#     data_output_path=processed_data_af2_path,
+#     missing_val_threshold=missing_val_threshold_af2,
+#     organism_group_dict=organism_group_dict,
+#     energy_field_list=af2_energy_field_list,
+#     labels=af2_labels,
+#     drop_cols_list=af2_drop_cols,
+#     constant_features_threshold=af2_constant_features_threshold,
+#     scaling_method_list=scaling_method_list,
+#     corr_coeff_threshold=af2_corr_coeff_threshold,
+#     remove_redundant_af2_models=remove_redundant_af2_models,
+# )
 
 # PDB
 
-# process_pdb_data(
-#     raw_destress_data=raw_destress_data_pdb,
-#     data_exploration_path=data_exploration_pdb_path,
-#     data_output_path=processed_data_pdb_path,
-#     missing_val_threshold=missing_val_threshold_pdb,
-#     energy_field_list=pdb_energy_field_list,
-#     labels=pdb_labels,
-#     drop_cols_list=pdb_drop_cols,
-#     constant_features_threshold=pdb_constant_features_threshold,
-#     scaling_method_list=scaling_method_list,
-#     corr_coeff_threshold=pdb_corr_coeff_threshold,
-# )
+process_pdb_data(
+    raw_destress_data=raw_destress_data_pdb,
+    data_exploration_path=data_exploration_pdb_path,
+    data_output_path=processed_data_pdb_path,
+    missing_val_threshold=missing_val_threshold_pdb,
+    energy_field_list=pdb_energy_field_list,
+    labels=pdb_labels,
+    drop_cols_list=pdb_drop_cols,
+    constant_features_threshold=pdb_constant_features_threshold,
+    scaling_method_list=scaling_method_list,
+    corr_coeff_threshold=pdb_corr_coeff_threshold,
+    processed_destress_data_file_name=processed_destress_data_file_name_pdb,
+)

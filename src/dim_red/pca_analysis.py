@@ -10,8 +10,8 @@ from dim_red_tools import *
 dataset_list = ["af2"]
 
 # Defining the scaling methods list
-# scaling_method_list = ["standard", "robust", "minmax"]
-scaling_method_list = ["minmax"]
+scaling_method_list = ["standard", "robust", "minmax"]
+# scaling_method_list = ["minmax"]
 
 # Defining number of principal components
 n_components = 7
@@ -129,6 +129,11 @@ for dataset in dataset_list:
             components_file_path="comp_contrib",
         )
 
+        # Removing minority secondary structures (only 56 structures)
+        pca_transformed_data = pca_transformed_data[
+            ~pca_transformed_data["dssp_bin"].isin(["Hbond Turn", "Bend", "3 10 Helix"])
+        ].reset_index(drop=True)
+
         # 5. Plotting 2d spaces---------------------------------------------------------------------
 
         # Setting theme for plots
@@ -190,6 +195,22 @@ for dataset in dataset_list:
         )
         fig.write_html(output_path_scaled + "pca_embedding_12.html")
 
+        plot_pca_boxplots(
+            principal_components_list=["dim0", "dim1", "dim2", "dim3"],
+            pca_data=pca_transformed_data,
+            x="dssp_bin",
+            output_path=output_path_scaled,
+            palette=palette,
+        )
+
+        plot_pca_boxplots(
+            principal_components_list=["dim0", "dim1", "dim2", "dim3"],
+            pca_data=pca_transformed_data,
+            x="isoelectric_point_bin",
+            output_path=output_path_scaled,
+            palette=palette,
+        )
+
         # Producing the same PCA plots with the points coloured by different labels
         for label in label_dict.keys():
             if label in [
@@ -205,6 +226,8 @@ for dataset in dataset_list:
 
             if label == "dssp_bin":
                 hue_order = ["Alpha Helix", "Beta Strand", "Loop", "Mixed"]
+            elif label == "isoelectric_point":
+                hue_order = ["Less than 6", "Between 6 and 8", "Greater than 8"]
             else:
                 hue_order = (
                     pca_transformed_data.sort_values(by=label, ascending=True)[label]

@@ -25,12 +25,12 @@ for i in range(0, n_components):
 hover_data = ["dim0", "dim1", "organism_scientific_name"]
 # hover_data = ["dim0", "dim1"]
 
-# # Creating a color palette
-# palette = sns.color_palette(
-#     ["#0173b2", "#d55e00", "#029e73", "#cc78bc", "#808080", "#f0e442"], 6
-# )
+# Creating a color palette
+palette = sns.color_palette(
+    ["#0173b2", "#d55e00", "#029e73", "#cc78bc", "#808080", "#f0e442"], 6
+)
 
-palette = sns.color_palette("tab10")
+# palette = sns.color_palette("tab10")
 
 # Defining data path
 data_path = "data/processed_data/"
@@ -191,14 +191,14 @@ for dataset in dataset_list:
             cmap = palette
 
             hue_order = (
-                pca_transformed_data.sort_values(by=label, ascending=False)[label]
+                pca_transformed_data.sort_values(by=label, ascending=True)[label]
                 .unique()
                 .tolist()
             )
 
             # Plotting PCA plot coloured by label
             plot_latent_space_2d(
-                data=pca_transformed_data.sort_values(by=label, ascending=False),
+                data=pca_transformed_data.sort_values(by="Kingdom", ascending=True),
                 var_explained_data=var_explained_df,
                 x="dim0",
                 y="dim1",
@@ -217,7 +217,7 @@ for dataset in dataset_list:
 
             # Plotting PCA plot coloured by label
             plot_latent_space_2d(
-                data=pca_transformed_data.sort_values(by=label, ascending=False),
+                data=pca_transformed_data.sort_values(by="Kingdom", ascending=True),
                 var_explained_data=var_explained_df,
                 x="dim0",
                 y="dim2",
@@ -236,7 +236,7 @@ for dataset in dataset_list:
 
             # Plotting PCA plot coloured by label
             plot_latent_space_2d(
-                data=pca_transformed_data.sort_values(by=label, ascending=False),
+                data=pca_transformed_data.sort_values(by="Kingdom", ascending=True),
                 var_explained_data=var_explained_df,
                 x="dim1",
                 y="dim2",

@@ -153,7 +153,7 @@ def plot_latent_space_2d(
     x_var_explained_formatted = np.round(x_var_explained.iloc[0], 2) * 100
     y_var_explained_formatted = np.round(y_var_explained.iloc[0], 2) * 100
 
-    # plt.figure(figsize=(9, 6))
+    plt.figure(figsize=(10, 6))
 
     if style:
 
@@ -232,9 +232,9 @@ def plot_latent_space_2d(
     sns.move_legend(
         plot,
         "lower center",
-        bbox_to_anchor=(0.5, -0.45),
+        bbox_to_anchor=(0.5, -0.3),
         frameon=True,
-        ncols=3,
+        ncols=4,
         title=legend_title,
         title_fontsize=14,
     )
@@ -327,7 +327,7 @@ def spectral_plot(
 
     # pca_data_filt = pca_data_long
 
-    # pca_data_filt["dim_id"] = float(pca_data_filt["dim_id"]) + 1
+    pca_data_filt["dim_id"] = pca_data_filt["dim_id"].astype("float") + 1
 
     # pca_data_filt = pca_data_filt[float(pca_data_filt["dim_id"]) < 5].reset_index(
     #     drop=True
@@ -407,19 +407,38 @@ def plot_pca_boxplots(
     output_path,
     palette=None,
     rows=2,
-    cols=2,
+    cols=1,
 ):
     # Default color palette if none is provided
     if palette is None:
         palette = sns.color_palette(["#0173b2", "#d55e00", "#029e73", "#cc78bc"], 4)
 
-    # Looping through the principal component list in batches of 4
-    for i in range(0, len(principal_components_list), 4):
-        fig, axs = plt.subplots(rows, cols, figsize=(10, 8))
+    if x == "dssp_bin":
+        x_label = "Secondary Structure"
 
-        for j in range(4):
+    elif x == "isoelectric_point_bin":
+        x_label = "Isoelectric Point"
+
+    elif x == "Kingdom" or x == "organism_group":
+        x_label = "Kingdom"
+
+    elif x == "Domain" or x == "organism_group2":
+        x_label = "Domain"
+
+    # Looping through the principal component list in batches of 4
+    for i in range(0, len(principal_components_list), 2):
+        fig, axs = plt.subplots(rows, cols, figsize=(7, 6), squeeze=False)
+
+        for j in range(2):
             if i + j < len(principal_components_list):
                 column = principal_components_list[i + j]
+                y_label = column.replace("dim", "PC")
+
+                # Incrementing label by 1
+                incremented_dim = str(int(y_label[2]) + 1)
+                y_label = y_label[:2] + incremented_dim
+
+                # Axes
                 ax = axs[j // cols, j % cols]
 
                 plot = sns.boxplot(
@@ -429,15 +448,15 @@ def plot_pca_boxplots(
                     palette=palette,
                     ax=ax,
                 )
-                ax.set_title(f"Box plot of {column} by organism")
-                ax.set_ylabel(column)
-                ax.set_xlabel("Organism")
+                # ax.set_title(f"Box plot of {column} by organism")
+                ax.set_ylabel(y_label)
+                ax.set_xlabel(x_label)
                 # Optionally rotate x-axis labels
-                ax.tick_params(axis="x", rotation=45)
+                # ax.tick_params(axis="x", rotation=45)
 
         plt.tight_layout()
         plt.savefig(
-            output_path + f"pca_org_{i//4 + 1}.png",
+            output_path + f"pca_{x}_{i//2 + 1}.png",
             bbox_inches="tight",
             dpi=600,
         )

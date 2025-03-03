@@ -8,8 +8,8 @@ import os
 # 1. Defining variables------------------------------------------------------------
 
 # Defining the scaling methods list
-# scaling_method_list = ["standard", "robust", "minmax"]
-scaling_method_list = ["standard"]
+scaling_method_list = ["standard", "robust", "minmax"]
+# scaling_method_list = ["standard"]
 
 # Defining number of principal components
 n_components = 7
@@ -60,11 +60,11 @@ for scaling_method in scaling_method_list:
 
     # Defining the path for processed AF2 DE-STRESS data
     processed_destress_data_path = (
-        data_path_scaled + "processed_destress_data_scaled.csv"
+        data_path_scaled + "processed_destress_data_scaled_nonredundant.csv"
     )
 
     # Defining file paths for labels
-    labels_df_path = data_path + "af2/" + "labels.csv"
+    labels_df_path = data_path + "af2/" + "labels_nonredundant.csv"
 
     # 3. Reading in data------------------------------------------------------------------------
 
@@ -78,14 +78,14 @@ for scaling_method in scaling_method_list:
     processed_destress_data = processed_destress_data[
         (labels_df["Mean_PLDDT"] >= 70)
         & (labels_df["subcellular_location"].isin(subcellular_locations))
-        & (labels_df["organism_group2"] == "Eukaryotes")
+        # & (labels_df["organism_group2"] == "Eukaryotes")
     ].reset_index(drop=True)
 
     # Filtering labels data
     labels_df = labels_df[
         (labels_df["Mean_PLDDT"] >= 70)
         & (labels_df["subcellular_location"].isin(subcellular_locations))
-        & (labels_df["organism_group2"] == "Eukaryotes")
+        # & (labels_df["organism_group2"] == "Eukaryotes")
     ].reset_index(drop=True)
 
     # Joining on the organism label data
@@ -188,12 +188,12 @@ for scaling_method in scaling_method_list:
 
         # Plotting PCA plot coloured by label
         plot_latent_space_2d(
-            data=pca_transformed_data.sort_values(by=label, ascending=True),
+            data=pca_transformed_data.sort_values(by="Kingdom", ascending=True),
             var_explained_data=var_explained_df,
             x="dim0",
             y="dim1",
             axes_prefix="PC",
-            legend_title=label_dict[label],
+            legend_title=None,
             hue=label,
             hue_order=hue_order,
             style="Kingdom",
@@ -207,12 +207,12 @@ for scaling_method in scaling_method_list:
 
         # Plotting PCA plot coloured by label
         plot_latent_space_2d(
-            data=pca_transformed_data.sort_values(by=label, ascending=True),
+            data=pca_transformed_data.sort_values(by="Kingdom", ascending=True),
             var_explained_data=var_explained_df,
             x="dim0",
             y="dim2",
             axes_prefix="PC",
-            legend_title=label_dict[label],
+            legend_title=None,
             hue=label,
             hue_order=hue_order,
             style="Kingdom",
@@ -226,12 +226,12 @@ for scaling_method in scaling_method_list:
 
         # Plotting PCA plot coloured by label
         plot_latent_space_2d(
-            data=pca_transformed_data.sort_values(by=label, ascending=True),
+            data=pca_transformed_data.sort_values(by="Kingdom", ascending=True),
             var_explained_data=var_explained_df,
             x="dim1",
             y="dim2",
             axes_prefix="PC",
-            legend_title=label_dict[label],
+            legend_title=None,
             hue=label,
             hue_order=hue_order,
             style="Kingdom",

@@ -44,7 +44,7 @@ palette = sns.color_palette(
 # palette = sns.color_palette("tab10")
 
 # Defining data path
-data_path = "data/processed_data/"
+data_path = "data/processed_data_single_af2db_cluster/"
 raw_data_path = "data/raw_data/"
 
 # Defining output data path
@@ -57,8 +57,8 @@ af2db_cluster_list_path = (
 
 # Defining a dictionary of labels
 label_dict = {
-    "organism_group_mito": "Organism Group 1",
-    "organism_group2_mito": "Organism Group 2",
+    "organism_group": "Kingdom",
+    # "organism_group2": "Domain",
 }
 
 
@@ -92,22 +92,22 @@ for dataset in dataset_list:
         # Reading in labels
         labels_df = pd.read_csv(labels_df_path)
 
-        processed_destress_data = processed_destress_data[
-            ~labels_df["design_name"].isin(
-                ["AF-Q7HP05-F1-model_v4", "AF-A0A5K1K958-F1-model_v4"]
-            )
-        ].reset_index(drop=True)
+        # processed_destress_data = processed_destress_data[
+        #     ~labels_df["design_name"].isin(
+        #         ["AF-Q7HP05-F1-model_v4", "AF-A0A5K1K958-F1-model_v4"]
+        #     )
+        # ].reset_index(drop=True)
 
-        labels_df = labels_df[
-            ~labels_df["design_name"].isin(
-                ["AF-Q7HP05-F1-model_v4", "AF-A0A5K1K958-F1-model_v4"]
-            )
-        ].reset_index(drop=True)
+        # labels_df = labels_df[
+        #     ~labels_df["design_name"].isin(
+        #         ["AF-Q7HP05-F1-model_v4", "AF-A0A5K1K958-F1-model_v4"]
+        #     )
+        # ].reset_index(drop=True)
 
         # Reading in uniprot description list
         af2db_cluster_list = pd.read_csv(af2db_cluster_list_path)
         # af2db_cluster_list = af2db_cluster_list["cluster_representative"].to_list()
-        af2db_cluster_list = ["A0A7Y5N281"]
+        af2db_cluster_list = ["A0A0G9LKG2"]
 
         for af2db_cluster in af2db_cluster_list:
 
@@ -273,7 +273,7 @@ for dataset in dataset_list:
             plot_pca_boxplots(
                 principal_components_list=["dim0", "dim1", "dim2", "dim3"],
                 pca_data=pca_transformed_data,
-                x="organism_group_mito",
+                x="organism_group",
                 output_path=output_path_af2db_cluster,
                 palette=palette,
             )
@@ -289,6 +289,15 @@ for dataset in dataset_list:
                     .tolist()
                 )
 
+                # hue_order = [
+                #     "Animal",
+                #     "Archaea",
+                #     "Bacteria",
+                #     "Fungi",
+                #     "Plant",
+                #     "Protozoan",
+                # ]
+
                 # Plotting PCA plot coloured by label
                 plot_latent_space_2d(
                     data=pca_transformed_data.sort_values(by=label, ascending=True),
@@ -299,7 +308,7 @@ for dataset in dataset_list:
                     legend_title=label_dict[label],
                     hue=label,
                     hue_order=hue_order,
-                    # style="organism_group",
+                    style=None,
                     alpha=0.9,
                     s=140,
                     palette=cmap,
@@ -317,7 +326,7 @@ for dataset in dataset_list:
                     legend_title=label_dict[label],
                     hue=label,
                     hue_order=hue_order,
-                    # style="organism_group",
+                    style=None,
                     alpha=0.9,
                     s=140,
                     palette=cmap,
@@ -335,7 +344,7 @@ for dataset in dataset_list:
                     legend_title=label_dict[label],
                     hue=label,
                     hue_order=hue_order,
-                    # style="organism_group",
+                    style=None,
                     alpha=0.9,
                     s=140,
                     palette=cmap,
@@ -343,19 +352,19 @@ for dataset in dataset_list:
                     file_name="pca_embedding_" + label,
                 )
 
-                spectral_plot(
-                    pca_data=pca_transformed_data.sort_values(
-                        by="organism_scientific_name", ascending=True
-                    ),
-                    group_var="organism_group_mito",
-                    value_var_list=dim_ids_list,
-                    filt_list=None,
-                    title=af2db_cluster,
-                    legend_title="",
-                    output_path=output_path_af2db_cluster,
-                    file_name="spectral_plot",
-                    palette=palette,
-                )
+                # spectral_plot(
+                #     pca_data=pca_transformed_data.sort_values(
+                #         by="organism_scientific_name", ascending=True
+                #     ),
+                #     group_var="organism_group_mito",
+                #     value_var_list=dim_ids_list,
+                #     filt_list=None,
+                #     title=af2db_cluster,
+                #     legend_title="",
+                #     output_path=output_path_af2db_cluster,
+                #     file_name="spectral_plot",
+                #     palette=palette,
+                # )
 
                 # Plotly scatter plot of PC1 against PC2
                 fig = px.scatter(
@@ -368,7 +377,7 @@ for dataset in dataset_list:
                         "dim0": "PC1",
                         "dim1": "PC2",
                     },
-                    color="organism_group_mito",
+                    color="organism_group",
                     # symbol="cluster_representative",
                     # color_discrete_map=palette,
                 )
