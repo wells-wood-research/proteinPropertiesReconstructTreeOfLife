@@ -18,11 +18,15 @@ palette = sns.color_palette(
 )
 
 # Defining data path
-data_path = "data/processed_data/af2/"
+# data_path = "data/processed_data/af2/"
+data_path = "data/processed_data_single_af2db_cluster/af2/"
 raw_data_path = "data/raw_data/"
 
 # Defining output data path
-output_path = "analysis/hier_clustering_avg_by_org/af2/"
+# output_path = "analysis/hier_clustering_avg_by_org/af2/"
+# output_path = "analysis/hier_clustering_avg_by_org_euk/af2/"
+# output_path = "analysis/hier_clustering_avg_by_org_euk_cyto/af2/"
+output_path = "analysis/hier_clustering_avg_by_org_single_af2db_cluster/af2/"
 
 # Defining a dictionary of labels
 label_dict = {
@@ -43,13 +47,21 @@ for scaling_method in scaling_method_list:
     # Defining paths for the data and scaling method used
     data_path_scaled = data_path + scaling_method + "/"
 
+    # # Defining the path for processed AF2 DE-STRESS data
+    # processed_destress_data_path = (
+    #     data_path_scaled + "processed_destress_data_scaled_nonredundant.csv"
+    # )
+
+    # # Defining file paths for labels
+    # labels_df_path = data_path + "labels_nonredundant.csv"
+
     # Defining the path for processed AF2 DE-STRESS data
     processed_destress_data_path = (
-        data_path_scaled + "processed_destress_data_scaled_nonredundant.csv"
+        data_path_scaled + "processed_destress_data_scaled.csv"
     )
 
     # Defining file paths for labels
-    labels_df_path = data_path + "labels_nonredundant.csv"
+    labels_df_path = data_path + "labels.csv"
 
     # 3. Reading in data------------------------------------------------------------------------
 
@@ -64,20 +76,26 @@ for scaling_method in scaling_method_list:
         [
             processed_destress_data,
             labels_df[
-                ["organism_scientific_name", "organism_group", "organism_group2"]
+                [
+                    "organism_scientific_name",
+                    "organism_group",
+                    "organism_group2",
+                    "subcellular_location",
+                ]
             ],
         ],
         axis=1,
     )
 
-    # # Filtering for euk
+    # # Filtering for euk and cyto
     # processed_destress_data_joined = processed_destress_data_joined[
-    #     processed_destress_data_joined["organism_group2"] == "Eukaryotes"
+    #     (processed_destress_data_joined["organism_group2"] == "Eukaryotes")
+    #     & (processed_destress_data_joined["subcellular_location"] == "Cytoplasm")
     # ].reset_index(drop=True)
 
     # Average each principal component grouped by organism
     processed_destress_data_avg = processed_destress_data_joined.groupby(
-        ["organism_scientific_name", "organism_group", "organism_group2"],
+        ["organism_scientific_name"],
         as_index=False,
     )[processed_destress_data.columns.to_list()].mean()
 
@@ -86,18 +104,14 @@ for scaling_method in scaling_method_list:
     # )
 
     # Extracting labels
-    organism_group_labels = processed_destress_data_avg["organism_group"].to_list()
-    organism_group2_labels = processed_destress_data_avg["organism_group2"].to_list()
     organism_labels = processed_destress_data_avg["organism_scientific_name"].to_list()
 
     # Extracting labels
-    labels = processed_destress_data_avg[
-        ["organism_scientific_name", "organism_group", "organism_group2"]
-    ]
+    labels = processed_destress_data_avg[["organism_scientific_name"]]
 
     # Removing these labels from destress data
     processed_destress_data_avg.drop(
-        ["organism_scientific_name", "organism_group", "organism_group2"],
+        ["organism_scientific_name"],
         inplace=True,
         axis=1,
     )

@@ -23,7 +23,9 @@ data_path = "data/processed_data/af2/"
 raw_data_path = "data/raw_data/"
 
 # Defining output data path
-output_path = "analysis/kmeans_avg_by_org/af2/"
+# output_path = "analysis/kmeans_avg_by_org/af2/"
+# output_path = "analysis/kmeans_avg_by_org_euk/af2/"
+output_path = "analysis/kmeans_avg_by_org_subcell_loc/af2/"
 
 # Defining a dictionary of labels
 label_dict = {
@@ -50,8 +52,8 @@ clustering_results_master = pd.DataFrame(
     ]
 )
 
-# Grouping var
-group_var = "organism_group2"
+# # Grouping var
+# group_var = "subcellular_location"
 
 # 2. Looping through the different scaling methods--------------------------------------------------
 
@@ -63,11 +65,11 @@ for scaling_method in scaling_method_list:
 
     # Defining the path for processed AF2 DE-STRESS data
     processed_destress_data_path = (
-        data_path_scaled + "processed_destress_data_scaled.csv"
+        data_path_scaled + "processed_destress_data_scaled_nonredundant.csv"
     )
 
     # Defining file paths for labels
-    labels_df_path = data_path + "labels.csv"
+    labels_df_path = data_path + "labels_nonredundant.csv"
 
     # 3. Reading in data------------------------------------------------------------------------
 
@@ -82,7 +84,12 @@ for scaling_method in scaling_method_list:
         [
             processed_destress_data,
             labels_df[
-                ["organism_scientific_name", "organism_group", "organism_group2"]
+                [
+                    "organism_scientific_name",
+                    "organism_group",
+                    "organism_group2",
+                    "subcellular_location",
+                ]
             ],
         ],
         axis=1,
@@ -93,9 +100,21 @@ for scaling_method in scaling_method_list:
     #     processed_destress_data_joined["organism_group2"] == "Eukaryotes"
     # ].reset_index(drop=True)
 
+    # Filtering for subceullar location
+    processed_destress_data_joined = processed_destress_data_joined[
+        processed_destress_data_joined["subcellular_location"].isin(
+            ["Cytoplasm", "Membrane", "Nucleus"]
+        )
+    ].reset_index(drop=True)
+
     # Average each principal component grouped by organism
     processed_destress_data_avg = processed_destress_data_joined.groupby(
-        ["organism_scientific_name", "organism_group", "organism_group2"],
+        [
+            "organism_scientific_name",
+            "organism_group",
+            "organism_group2",
+            "subcellular_location",
+        ],
         as_index=False,
     )[processed_destress_data.columns.to_list()].mean()
 
@@ -103,15 +122,32 @@ for scaling_method in scaling_method_list:
     organism_group_labels = processed_destress_data_avg["organism_group"].to_list()
     organism_group2_labels = processed_destress_data_avg["organism_group2"].to_list()
     organism_labels = processed_destress_data_avg["organism_scientific_name"].to_list()
+    subcellular_location_labels = processed_destress_data_avg[
+        "subcellular_location"
+    ].to_list()
+    organism_subcellular_location_list = [
+        a + " - " + b
+        for a, b in zip(organism_group2_labels, subcellular_location_labels)
+    ]
 
     # Extracting labels
     labels = processed_destress_data_avg[
-        ["organism_scientific_name", "organism_group", "organism_group2"]
+        [
+            "organism_scientific_name",
+            "organism_group",
+            "organism_group2",
+            "subcellular_location",
+        ]
     ]
 
     # Removing these labels from destress data
     processed_destress_data_avg.drop(
-        ["organism_scientific_name", "organism_group", "organism_group2"],
+        [
+            "organism_scientific_name",
+            "organism_group",
+            "organism_group2",
+            "subcellular_location",
+        ],
         inplace=True,
         axis=1,
     )
@@ -141,7 +177,7 @@ for scaling_method in scaling_method_list:
             # Calculating the adjusted rand score against
             # the organism labels
             adj_rand_score = metrics.adjusted_rand_score(
-                eval(group_var + "_labels"),
+                organism_subcellular_location_list,
                 predicted_labels,
             )
 
@@ -167,7 +203,11 @@ for scaling_method in scaling_method_list:
             )
 
 clustering_results_master.to_csv(
-    output_path + "kmeans_results_master_destress" + "_" + group_var + ".csv",
+    output_path
+    + "kmeans_results_master_destress"
+    + "_"
+    + "organism_subcellular_location"
+    + ".csv",
     index=False,
 )
 
@@ -188,7 +228,10 @@ for scaling_method in scaling_method_list:
     adj_rand_ind_plot(
         data=clustering_results_master_scaler,
         title="",
-        file_name="kmeans_eval_" + scaling_method + "_destress_" + group_var,
+        file_name="kmeans_eval_"
+        + scaling_method
+        + "_destress_"
+        + "organism_subcellular_location",
         # hue="group_var",
         output_path=output_path_scaled,
     )
