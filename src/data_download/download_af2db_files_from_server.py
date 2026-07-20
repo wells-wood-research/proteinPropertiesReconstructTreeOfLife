@@ -24,21 +24,25 @@ def sync_files(server, username, remote_folder, local_folder, file_list):
 
 
 def main():
-    server = ""
-    username = ""
-    remote_folder = ""
-    local_folder = ""
+    server = "glutamate.bio.ed.ac.uk"
+    username = "mjstam"
+    remote_folder = "/mnt/scratch/alphafold_model_organisms/"
+    # local_folder = "/home/mstam/GitRepos/proteinPropertiesReconstructTreeOfLife/analysis/pca_single_af2db_cluster/af2/standard/A0A0G9LKG2/af2_structures/"
+    local_folder = "/home/mstam/GitRepos/proteinPropertiesReconstructTreeOfLife/analysis/pca_single_af2db_cluster/af2/standard/A0A0B8NHG6/af2_structures/"
 
     pca_data_single_cluster = pd.read_csv(
-        "",
-        delimiter="\t",
+        "/home/mstam/GitRepos/proteinPropertiesReconstructTreeOfLife/analysis/pca_single_af2db_cluster/af2/standard/A0A0B8NHG6/pca_transformed_data.csv",
+        # "/home/mstam/GitRepos/proteinPropertiesReconstructTreeOfLife/analysis/pca_single_af2db_cluster/af2/standard/A0A0G9LKG2/pca_transformed_data.csv",
     )
-    file_names = pca_data_single_cluster["Entry"].to_list()
+    file_names = [
+        file_name + ".pdb"
+        for file_name in pca_data_single_cluster["design_name"].to_list()
+    ]
 
-    # Add .pdb suffix
-    pdb_filenames = ["AF-" + filename + "-F1-model_v4.pdb" for filename in file_names]
+    # # Add .pdb suffix
+    # pdb_filenames = ["AF-" + filename + "-F1-model_v4.pdb" for filename in file_names]
 
-    sync_files(server, username, remote_folder, local_folder, pdb_filenames)
+    sync_files(server, username, remote_folder, local_folder, file_names)
 
 
 if __name__ == "__main__":
