@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.vscode/
+
+# Data and analysis outputs
+data/
+analysis/
+antibodyproduction/analysis/
+antibodyproduction/data/
+antibodyproduction/feature_selection/
+antibodyproduction/models/
