@@ -200,15 +200,15 @@ def plot_latent_space_2d(
     plt.yticks(fontsize=17)
     # plt.xlim([-0.8, 0.9])
     # plt.ylim([-0.7, 0.8])
-    sns.move_legend(
-        plot,
-        "upper left",
-        bbox_to_anchor=(1, 1),
-        frameon=True,
-        title=legend_title,
-        title_fontsize=14,
-        fontsize=12,
-    )
+    # sns.move_legend(
+    #     plot,
+    #     "upper left",
+    #     bbox_to_anchor=(1, 1),
+    #     frameon=True,
+    #     title=legend_title,
+    #     title_fontsize=14,
+    #     fontsize=12,
+    # )
 
     # handles, labels = plt.gca().get_legend_handles_labels()
 
@@ -229,15 +229,15 @@ def plot_latent_space_2d(
     #     title=legend_title,
     #     title_fontsize=16,
     # )
-    # sns.move_legend(
-    #     plot,
-    #     "lower center",
-    #     bbox_to_anchor=(0.5, -0.3),
-    #     frameon=True,
-    #     ncols=4,
-    #     title=legend_title,
-    #     title_fontsize=14,
-    # )
+    sns.move_legend(
+        plot,
+        "lower center",
+        bbox_to_anchor=(0.5, -0.3),
+        frameon=True,
+        ncols=5,
+        title=legend_title,
+        title_fontsize=14,
+    )
     plt.savefig(
         output_path + file_name + x_id + y_id + ".png",
         bbox_inches="tight",
