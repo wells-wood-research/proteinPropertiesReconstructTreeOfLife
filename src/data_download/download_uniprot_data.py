@@ -4,7 +4,6 @@ from typing import Any, Dict, Optional, List
 import requests
 import pandas as pd
 import multiprocessing as mp
-import random
 
 
 @dataclass
@@ -141,8 +140,6 @@ af2_file_names = raw_destress_data_af2["design_name"].str.split("-").str[1]
 
 # Extracting this as a list
 af2_uniprot_id_list = af2_file_names.to_list()
-
-af2_uniprot_id_list = random.sample(af2_uniprot_id_list, 2000)
 
 # Downloading Uniprot data
 results_df = download_uniprot_data(
