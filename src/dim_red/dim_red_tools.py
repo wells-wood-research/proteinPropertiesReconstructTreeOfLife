@@ -310,6 +310,10 @@ def spectral_plot(
     output_path,
     file_name,
     palette,
+    ncols=2,
+    ylim=(-0.9, 0.9),
+    legend_loc="lower center",
+    legend_bbox_to_anchor=(0.5, -0.38),
 ):
     # Changing format of data from wide to long
     pca_data_long = pca_data.melt(
@@ -322,7 +326,7 @@ def spectral_plot(
     # Extracting the id of the pca dimension
     pca_data_long["dim_id"] = pca_data_long["dim_id"].str.replace("dim", "")
     pca_data_filt = pca_data_long[
-        pca_data_long["organism_scientific_name"].isin(filt_list)
+        pca_data_long[group_var].isin(filt_list)
     ].reset_index(drop=True)
 
     # pca_data_filt = pca_data_long
@@ -368,10 +372,10 @@ def spectral_plot(
     plt.legend(
         # handles=new_handles,
         # labels=labels,
-        loc="lower center",
-        bbox_to_anchor=(0.5, -0.38),
+        loc=legend_loc,
+        bbox_to_anchor=legend_bbox_to_anchor,
         frameon=False,
-        ncols=2,
+        ncols=ncols,
         fontsize=14,
         title=legend_title,
         markerscale=10,
@@ -389,7 +393,7 @@ def spectral_plot(
     )
 
     plt.yticks(fontsize=16)
-    plt.ylim([-0.9, 0.9])
+    plt.ylim(ylim)
     # plt.ylim([-0.08, 0.12])
 
     plt.savefig(

@@ -74,12 +74,16 @@ ax.set_xlim(0.45, 0.95)
 ax.set_xticks(np.arange(0.5, 0.95, 0.1))
 
 # Legend
+jitter_handle = plt.Line2D([0], [0], marker="o", linestyle="none",
+                            markerfacecolor="#0173b2", markeredgecolor="none",
+                            markersize=5, alpha=0.4,
+                            label="Observed CID values (DE-STRESS tree vs. NCBI reference)")
 obs_handle = plt.Line2D([0], [0], marker="o", color="#0173b2", linestyle="-",
-                         markersize=6, label="Observed (mean ± SD)")
+                         markersize=6, label="Mean ± SD of observed CID values")
 exp_handle = plt.Line2D([0], [0], marker="D", color="#999999", linestyle="-",
-                         markersize=5, label="Random expectation (mean ± SD)")
-ax.legend(handles=[obs_handle, exp_handle], fontsize=8,
-          loc="upper center", bbox_to_anchor=(0.5, -0.12), ncol=2, borderaxespad=0)
+                         markersize=5, label="Mean ± SD of random tree CID values")
+ax.legend(handles=[jitter_handle, obs_handle, exp_handle], fontsize=8,
+          loc="upper center", bbox_to_anchor=(0.5, -0.12), ncol=3, borderaxespad=0)
 
 
 plt.tight_layout()
