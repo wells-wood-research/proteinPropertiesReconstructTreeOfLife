@@ -140,20 +140,12 @@ The pipeline runs in four sequential stages.
 
 ### Stage 2 - Data preparation & feature engineering (`src/data_prep/`)
 
-Joins DE-STRESS output with organism metadata and FoldSeek cluster assignments. Removes features with >5% missing values, drops constant features, normalizes energy terms by sequence length, removes highly correlated features (Spearman |r| > 0.6), and scales using three methods in parallel: Standard (z-score), Robust (IQR), and MinMax.
-
-Produces one **non-redundant** dataset (one structure per organism x FoldSeek cluster, random seed 42) and one full dataset.
-
-Scaled outputs are written to `data/processed_data/af2/{standard,robust,minmax}/`:
-- `processed_destress_data_scaled.csv` - full dataset
-- `processed_destress_data_scaled_nonredundant.csv` - non-redundant dataset
-- `{method}_scaler.pkl` - fitted scaler
-- `labels.csv` / `labels_nonredundant.csv` - metadata columns
+Joins DE-STRESS output with organism metadata and FoldSeek cluster assignments. Removes features with >5% missing values, drops constant features, normalizes energy terms by sequence length, removes highly correlated features (Spearman |r| > 0.6), and scales using three methods in parallel: Standard (z-score), Robust (IQR), and MinMax. Produces a full dataset and a non-redundant dataset (one structure per organism x FoldSeek cluster, random seed 42).
 
 | Script | Role |
 |---|---|
 | `data_prep.py` | Main execution script - calls `data_prep_tools.py` |
-| `data_prep_tools.py` | Shared utility library (see module reference below) |
+| `data_prep_tools.py` | Shared utility library |
 | `uniprot_af2db_data_prep.py` | Joins UniProt + AFDB metadata |
 | `af2db_clusters_data_prep.py` | Cleans filtered FoldSeek cluster table |
 | `random_select_structures_by_org_and_cluster.py` | Generates the non-redundant structure list |
@@ -171,7 +163,7 @@ Runs PCA across dataset x scaling method combinations. Averaged scaled DE-STRESS
 
 | Script | Role |
 |---|---|
-| `dim_red_tools.py` | Shared utility library (see module reference below) |
+| `dim_red_tools.py` | Shared utility library |
 | `pca_analysis.py` | Full-proteome PCA (all models) |
 | `pca_avg_destress_metrics_by_org.py` | Organism-averaged PCA |
 | `pca_all_mitochondrial_proteins.py` | Mitochondrially-encoded proteins only |
@@ -197,7 +189,7 @@ Two NCBI reference trees are available:
 
 | Script | Role |
 |---|---|
-| `clustering_tools.py` | Shared utility library (see module reference below) |
+| `clustering_tools.py` | Shared utility library |
 | `hierarchical_clustering_avg_destress_metrics.py` | Hierarchical clustering across all organisms - dendrograms and `.nwk` trees for all linkage x distance combinations |
 | `kmeans_avg_destress_metrics.py` | K-means evaluation (k = 2-20) |
 | `tree_dist.R` | Computes CID between all reconstructed trees and the NCBI reference phylogeny |
@@ -261,21 +253,3 @@ The pipeline loops over all combinations of scaling method (`standard`, `robust`
 | `model_building_tools.py` | Shared utility library for model training and evaluation |
 | `pymol_calign_script.pml` | Structural alignment of antibody PDB files in PyMOL |
 
-### Key parameters (`antibodyproduction/src/data_prep.py`)
-
-| Variable | Value | Description |
-|---|---|---|
-| `test_size` | `0.25` | Stratified train/test split by expression bin. |
-| `random_state` | `42` | |
-| `corr_coeff_threshold` | `0.7` | Slightly more permissive than main project (0.6) due to smaller dataset. |
-| `constant_features_threshold` | `0.8` | More permissive constant-feature cutoff. |
-| `num_cvs` / `num_folds` | `10` / `5` | 50 total validation folds; mean metrics and CI reported. |
-
-### Outputs
-
-| Directory | Contents |
-|---|---|
-| `antibodyproduction/data/processed_data/{scaler}/{comp_flag}/` | `X_train_scaled.csv`, `X_test_scaled.csv`, `y_train.csv`, `y_test.csv`, `pdb_scaled.csv` |
-| `antibodyproduction/feature_selection/{scaler}/{comp_flag}/` | `selected_features_mi.csv`, `selected_features_rf.csv` |
-| `antibodyproduction/analysis/dim_red/pca/` | PCA scatter plots and spectral plots coloured by expression level |
-| `antibodyproduction/models/` | Confusion matrices, ROC curves, `model_val_master.csv`, `model_test_master.csv` |
