@@ -35,9 +35,62 @@ proteinPropertiesReconstructTreeOfLife/
 │
 ├── src/
 │   ├── data_download/
+│   │   ├── download_af2_data.py
+│   │   ├── extract_plddt_score.py
+│   │   ├── download_af2_org_sci_name.py
+│   │   ├── download_uniprot_data.py
+│   │   ├── download_mitochondrial_encoded_proteins_uniprot.py
+│   │   ├── filtering_af2db_clustering_data.py
+│   │   ├── download_structures_af2_pdb_files.py
+│   │   └── download_af2db_files_from_server.py
+│   │
 │   ├── data_prep/
+│   │   ├── data_prep.py
+│   │   ├── data_prep_tools.py
+│   │   ├── data_prep_aa_composition.py
+│   │   ├── data_prep_single_proteins.py
+│   │   ├── uniprot_af2db_data_prep.py
+│   │   ├── af2db_clusters_data_prep.py
+│   │   ├── random_select_structures_by_org_and_cluster.py
+│   │   ├── csv_to_fasta_file.py
+│   │   ├── destress_features_by_dataset.py
+│   │   ├── dssp_and_aa_proportions.py
+│   │   ├── sequence_length_histogram.py
+│   │   └── correlation_dssp_hb_isoelectric_aggrescan.py
+│   │
 │   ├── dim_red/
+│   │   ├── dim_red_tools.py
+│   │   ├── pca_analysis.py
+│   │   ├── pca_avg_destress_metrics_by_org.py
+│   │   ├── pca_all_mitochondrial_proteins.py
+│   │   ├── pca_subcellular_location.py
+│   │   ├── pca_analysis_spectral_all_organisms.py
+│   │   ├── subcellular_location_analysis.py
+│   │   ├── single_af2db_cluster_pca_analysis.py
+│   │   ├── single_af2db_cluster_pca_analysis_filtered.py
+│   │   ├── single_protein_pca_analysis.py
+│   │   ├── plddt_pca_correlation_sod.py
+│   │   ├── plddt_pca_correlation_sod_by_kingdom.py
+│   │   └── plddt_vs_feature_pc1_correlations_sod.py
+│   │
 │   ├── clustering/
+│   │   ├── clustering_tools.py
+│   │   ├── hierarchical_clustering_avg_destress_metrics.py
+│   │   ├── hierarchical_clustering_avg_destress_metrics_single_af2db_cluster_filtered.py
+│   │   ├── hierarchical_clustering_aa_composition.py
+│   │   ├── kmeans_avg_destress_metrics.py
+│   │   ├── kmeans_aa_composition.py
+│   │   ├── tree_dist.R
+│   │   ├── tree_dist_single_af2db_cluster_filtered.R
+│   │   ├── tree_dist_aa_composition.R
+│   │   ├── test_tree_dist_single_af2db_cluster_filtered.R
+│   │   ├── plot_cid_summary_single_af2db_cluster_filtered.py
+│   │   ├── compare_cid_destress_vs_aa_composition.py
+│   │   ├── plot_cid_destress_vs_aa_composition.py
+│   │   ├── format_tree_distances_table.py
+│   │   ├── summarise_cluster_descriptions.py
+│   │   └── summarise_cluster_descriptions_all.py
+│   │
 │   ├── pymol_calign_script.pml
 │   ├── pymol_calign_hide_nterm_script.pml
 │   ├── pymol_calign_trim_structure_script.py
@@ -45,6 +98,15 @@ proteinPropertiesReconstructTreeOfLife/
 │
 ├── antibodyproduction/
 │   └── src/
+│       ├── data_prep.py
+│       ├── data_prep_tools.py
+│       ├── feature_selection.py
+│       ├── feature_selection_tools.py
+│       ├── dim_red.py
+│       ├── dim_red_tools.py
+│       ├── model_building.py
+│       ├── model_building_tools.py
+│       └── pymol_calign_script.pml
 │
 ├── data/                       # git-ignored
 │   ├── raw_data/
@@ -261,6 +323,18 @@ All parameters are set near the top of each execution script. There is no centra
 **Feature selection:** Mutual information (`feature_select_mi`) and Random Forest importance (`feature_select_rf`, 1000 trees, balanced class weights).
 
 The pipeline loops over all combinations of scaling method (`standard`, `robust`, `minmax`) x amino acid composition included/excluded x feature selection method (`mi`/`rf`).
+
+| Script | Role |
+|---|---|
+| `data_prep.py` | Main execution script - processes expression and DE-STRESS data into train/test splits; calls `data_prep_tools.py` |
+| `data_prep_tools.py` | Shared utility library for data preparation |
+| `feature_selection.py` | Runs mutual information and random forest feature selection across all scaling x composition combinations |
+| `feature_selection_tools.py` | Shared utility library for feature selection |
+| `dim_red.py` | PCA analysis of the antibody expression data |
+| `dim_red_tools.py` | Shared utility library for dimensionality reduction |
+| `model_building.py` | Trains Gaussian Naive Bayes classifiers across all feature sets and evaluates with 10×5-fold cross-validation |
+| `model_building_tools.py` | Shared utility library for model training and evaluation |
+| `pymol_calign_script.pml` | Structural alignment of antibody PDB files in PyMOL |
 
 ### Key parameters (`antibodyproduction/src/data_prep.py`)
 
