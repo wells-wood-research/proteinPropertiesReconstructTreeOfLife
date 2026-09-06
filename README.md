@@ -96,10 +96,12 @@ Scaled outputs are written to `data/processed_data/af2/{standard,robust,minmax}/
 | `af2db_clusters_data_prep.py` | Cleans filtered FoldSeek cluster table |
 | `random_select_structures_by_org_and_cluster.py` | Generates the non-redundant structure list |
 | `data_prep_single_proteins.py` | Data preparation for single protein family analyses |
+| `data_prep_aa_composition.py` | Prepares amino acid composition baseline data: extracts the 20 standard `composition_*` columns and scales with all three methods |
 | `csv_to_fasta_file.py` | Converts a CSV of sequences to FASTA format |
 | `destress_features_by_dataset.py` | Summarises which DE-STRESS features are used in each analysis across the paper |
 | `dssp_and_aa_proportions.py` | Computes DSSP bin, secondary structure residue, and amino acid proportions across datasets |
 | `sequence_length_histogram.py` | Plots protein sequence length distributions across datasets |
+| `correlation_dssp_hb_isoelectric_aggrescan.py` | Spearman correlation analysis between selected feature pairs (DSSP/HB energies, isoelectric point/Aggrescan3D, VdW/packing density) |
 
 ### Stage 3 - Dimensionality reduction (`src/dim_red/`)
 
@@ -129,10 +131,12 @@ Two NCBI reference trees are available:
 - `data/processed_data/ncbi_phylo_tree.phy` - full 48-organism tree
 - `data/processed_data/ncbi_phylo_tree_euk.phy` - eukaryotes only
 
+**DE-STRESS clustering**
+
 | Script | Role |
 |---|---|
 | `clustering_tools.py` | Shared utility library (see module reference below) |
-| `hierarchical_clustering_avg_destress_metrics.py` | Hierarchical clustering across all organisms - produces dendrograms and `.nwk` trees for all linkage x distance combinations |
+| `hierarchical_clustering_avg_destress_metrics.py` | Hierarchical clustering across all organisms - dendrograms and `.nwk` trees for all linkage x distance combinations |
 | `kmeans_avg_destress_metrics.py` | K-means evaluation (k = 2-20) |
 | `tree_dist.R` | Computes CID between all reconstructed trees and the NCBI reference phylogeny |
 | `hierarchical_clustering_avg_destress_metrics_single_af2db_cluster_filtered.py` | Hierarchical clustering for each of the 11 filtered FoldSeek clusters |
@@ -141,6 +145,17 @@ Two NCBI reference trees are available:
 | `test_tree_dist_single_af2db_cluster_filtered.R` | Validates tip label normalisation and CID computation for filtered cluster trees |
 | `summarise_cluster_descriptions.py` | Summarises protein descriptions within a single FoldSeek cluster |
 | `summarise_cluster_descriptions_all.py` | Summarises protein descriptions across all 22 FoldSeek clusters |
+
+**Amino acid composition baseline**
+
+| Script | Role |
+|---|---|
+| `hierarchical_clustering_aa_composition.py` | Hierarchical clustering using organism-averaged AA composition across all linkage x distance combinations |
+| `kmeans_aa_composition.py` | K-means evaluation using AA composition (k = 2-20) |
+| `tree_dist_aa_composition.R` | Computes CID between AA composition trees and the NCBI reference phylogeny |
+| `compare_cid_destress_vs_aa_composition.py` | Joins DE-STRESS and AA composition CID results and computes per-combination differences |
+| `plot_cid_destress_vs_aa_composition.py` | Plots CID difference between DE-STRESS and AA composition clustering |
+| `format_tree_distances_table.py` | Reformats a `tree_distances.csv` into a publication-ready table sorted ascending by CID |
 
 ---
 
