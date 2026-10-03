@@ -3,7 +3,7 @@
 
 # 0. Importing packages and functions----------------------------------------
 import os
-from beautifulsoup4 import BeautifulSoup
+from bs4 import BeautifulSoup
 import subprocess
 import multiprocessing as mp
 
@@ -26,7 +26,11 @@ output_path = "/scratch/alphafold_model_organisms/"
 # 2. Downloading tar files---------------------------------------------------
 
 # Extracting the urls from the html page using beutiful soup
-with open("Index of _pub_databases_alphafold_latest.html") as fp:
+html_path = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "afdb_proteome_index.html",
+)
+with open(html_path) as fp:
     soup = BeautifulSoup(fp, "html.parser")
 
 soup = soup.find_all("a")

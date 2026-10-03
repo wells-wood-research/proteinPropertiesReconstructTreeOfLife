@@ -129,7 +129,7 @@ The pipeline runs in four sequential stages.
 
 | Script | What it does |
 |---|---|
-| `download_af2_data.py` | Downloads AFDB proteome tar files (parses AFDB index HTML, 20 parallel `wget` processes). **Note:** contains incorrect import `from beautifulsoup4 import BeautifulSoup` - correct form is `from bs4 import BeautifulSoup`. |
+| `download_af2_data.py` | Downloads AFDB proteome tar files (parses AFDB index HTML, 20 parallel `wget` processes). The saved index page it parses is committed alongside the script. |
 | `extract_plddt_score.py` | Parses PDB B-factor columns to extract per-residue pLDDT; computes per-model mean from Ca atoms |
 | `download_af2_org_sci_name.py` | Downloads organism name and UniProt description via AFDB REST API (4 worker processes) |
 | `download_uniprot_data.py` | Downloads subcellular location, GO codes, lineage class, and gene encoding type via UniProt REST API (6 worker processes) |
